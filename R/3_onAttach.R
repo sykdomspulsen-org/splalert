@@ -2,16 +2,16 @@
 #' @importFrom magrittr %>%
 .onAttach <- function(libname, pkgname) {
     version <- tryCatch(
-      utils::packageDescription("PACKAGE", fields = "Version"),
+      utils::packageDescription("splalert", fields = "Version"),
       warning = function(w){
         1
       }
     )
   
   packageStartupMessage(paste0(
-    "PACKAGE ",
+    "splalert ",
     version,
     "\n",
-    "https://docs.sykdomspulsen.no/PACKAGE"
+    "https://docs.sykdomspulsen.no/splalert"
   ))
 }

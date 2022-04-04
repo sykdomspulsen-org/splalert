@@ -1,10 +1,10 @@
 ---
-title: "Introduction to PACKAGE"
+title: "Introduction to splalert"
 author: "Richard White"
 date: "2020-02-17"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Introduction to PACKAGE}
+  %\VignetteIndexEntry{Introduction to splalert}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

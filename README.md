@@ -2,7 +2,7 @@
 
 ## Overview 
 
-[splalert](https://docs.sykdomspulsen.no/splalert) is a system to help you organize projects. Most analyses have three (or more) main sections: code, results, and data, each with different requirements (version control/sharing/encryption). You provide folder locations and 'org' helps you take care of the details.
+[splalert](https://docs.sykdomspulsen.no/splalert) helps create alerts from public health surveillance data.
 
 Read the introduction vignette [here](http://docs.sykdomspulsen.no/splalert/articles/splalert.html) or run `help(package="splalert")`.
 

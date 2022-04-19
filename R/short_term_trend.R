@@ -23,8 +23,9 @@ short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_d
     stop("granularity_time is not day or isoweek")
   }
 
-  retval <- rep(NA_character_, nrow(x))
-  for(i in seq_along(retval)){
+  doubling_time <- rep(NA_real_, nrow(x))
+  trend <- rep(NA_character_, nrow(x))
+  for(i in seq_along(trend)){
     index <- (i - trend_days + 1):i
     if(i > (nrow(x) - remove_last_days)){
       next()
@@ -41,29 +42,35 @@ short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_d
     co <- vals["trend_days", "Estimate"]
     pval <- vals["trend_days",][[4]]
     if(pval > 0.05){
-      retval[i] <- "null"
+      trend[i] <- "null"
     } else if(co < 0){
-      retval[i] <- "decreasing"
+      trend[i] <- "decreasing"
     } else{
-      retval[i] <- "increasing"
+      trend[i] <- "increasing"
     }
+    doubling_time[i] <- log(2)/co
   }
 
+  retval <- data.table(
+    "trend" = trend,
+    "days_to_double" = round(doubling_time, 1)
+  )
   return(retval)
 }
 
 #' Determine the short term trend
 #' @param x Data object
+#' @param outcome Character of outcome
 #' @param trend_days Number of days you want to check the trend
 #' @param remove_last_days Number of days you want to remove at the end (due to unreliable data)
 #' @export
-short_term_trend <- function(x, trend_days = 14, remove_last_days = 0){
+short_term_trend <- function(x, outcome, trend_days = 14, remove_last_days = 0){
   UseMethod("short_term_trend", x)
 }
 
 #' @method short_term_trend splfmt_rts_data_v1
 #' @export
-short_term_trend.splfmt_rts_data_v1 <- function(x, trend_days = 14, remove_last_days = 0){
+short_term_trend.splfmt_rts_data_v1 <- function(x, outcome, trend_days = 14, remove_last_days = 0){
   if(!"time_series_id" %in% names(x)) on.exit(x[, time_series_id := NULL])
 
   num_unique_ts <- spltidy::unique_time_series(x, set_time_series_id = TRUE) %>%
@@ -72,11 +79,11 @@ short_term_trend.splfmt_rts_data_v1 <- function(x, trend_days = 14, remove_last_
   if(num_unique_ts > 1){
     ds <- split(x, x$time_series_id)
     retval <- lapply(ds, function(y){
-      short_term_trend_internal(y, outcome = outcome, trend = trend, remove_last_days = remove_last_days)
+      short_term_trend_internal(y, outcome = outcome, trend_days = trend_days, remove_last_days = remove_last_days)
     })
-    retval <- unlist(retval, recursive = FALSE, use.names = FALSE)
+    retval <- rbindlist(retval) #unlist(retval, recursive = FALSE, use.names = FALSE)
   } else {
-    retval <- short_term_trend_internal(x, outcome = outcome, trend = trend, remove_last_days = remove_last_days)
+    retval <- short_term_trend_internal(x, outcome = outcome, trend_days = trend_days, remove_last_days = remove_last_days)
   }
 
   return(retval)

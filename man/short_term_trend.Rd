@@ -4,10 +4,12 @@
 \alias{short_term_trend}
 \title{Determine the short term trend}
 \usage{
-short_term_trend(x, trend_days = 14, remove_last_days = 0)
+short_term_trend(x, outcome, trend_days = 14, remove_last_days = 0)
 }
 \arguments{
 \item{x}{Data object}
+
+\item{outcome}{Character of outcome}
 
 \item{trend_days}{Number of days you want to check the trend}
 

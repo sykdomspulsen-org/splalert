@@ -25,7 +25,11 @@ short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_d
 
   doubling_time <- rep(NA_real_, nrow(x))
   trend <- rep(NA_character_, nrow(x))
-  for(i in seq_along(trend)){
+
+  indexes <- nrow(x):1
+  #if(remove_last_days > 0) indexes <- indexes[-c(1:remove_last_days)]
+  #indexes <- indexes[which(spltime::keep_sundays_and_latest_date(x$date[indexes]) != "delete")]
+  for(i in indexes){
     index <- (i - trend_days + 1):i
     if(i > (nrow(x) - remove_last_days)){
       next()
@@ -43,19 +47,24 @@ short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_d
     pval <- vals["trend_days",][[4]]
     if(pval > 0.05){
       trend[i] <- "null"
-    } else if(co < 0){
-      trend[i] <- "decreasing"
-    } else{
-      trend[i] <- "increasing"
+    } else {
+      if(co < 0){
+        trend[i] <- "decreasing"
+      } else{
+        trend[i] <- "increasing"
+      }
     }
     doubling_time[i] <- log(2)/co
   }
+  trend <- factor(trend, levels = c("decreasing", "null", "increasing"))
 
-  retval <- data.table(
-    "trend" = trend,
-    "days_to_double" = round(doubling_time, 1)
-  )
-  return(retval)
+  suffix <- stringr::str_extract(outcome, "_[a-z]+$")
+  varname_trend <- paste0(stringr::str_remove(outcome, "_[a-z]+$"), "_trend0_",trend_days, suffix, "_status")
+  varname_days_to_double <- paste0(stringr::str_remove(outcome, "_[a-z]$"), "_doublingdays0_",trend_days, suffix)
+  x[, (varname_trend) := trend]
+  x[, (varname_days_to_double) := round(doubling_time, 1)]
+
+  return(x)
 }
 
 #' Determine the short term trend
@@ -85,6 +94,8 @@ short_term_trend.splfmt_rts_data_v1 <- function(x, outcome, trend_days = 14, rem
   } else {
     retval <- short_term_trend_internal(x, outcome = outcome, trend_days = trend_days, remove_last_days = remove_last_days)
   }
+
+  data.table::shouldPrint(retval)
 
   return(retval)
 }

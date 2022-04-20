@@ -2,7 +2,6 @@
 
 S3method(short_term_trend,splfmt_rts_data_v1)
 export(short_term_trend)
-export(test_fn)
 import(data.table)
 import(ggplot2)
 importFrom(magrittr,"%>%")

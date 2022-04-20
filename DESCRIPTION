@@ -1,5 +1,5 @@
 Package: splalert
-Title: Alerts from public health surveillance data.
+Title: Alerts from public health surveillance data
 Version: 2020.5.25
 Authors@R: c(
   person(c("Beatriz","Valcarcel"), "Salamanca", email = "beva@fhi.no", role = c("aut", "cre"), comment = c(ORCID = "0000-0000-0000-0000")),
@@ -19,11 +19,13 @@ Imports: data.table,
     ggplot2,
     glm2,
     spltidy,
-    spltime
+    spltime,
+    stringr
 Suggests: testthat,
     knitr,
     rmarkdown,
     rstudioapi,
-    glue
+    glue,
+    splstyle
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr

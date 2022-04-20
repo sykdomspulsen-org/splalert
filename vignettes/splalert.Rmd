@@ -1,7 +1,7 @@
 ---
 title: "Introduction to splalert"
-author: "Richard White"
-date: "2020-02-17"
+author: "Beatriz Valcarcel Salamanca"
+date: "2022-04-20"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Introduction to splalert}

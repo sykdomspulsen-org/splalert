@@ -55,7 +55,7 @@ short_term_trend_internal <- function(x, numerator, denominator = NULL, trend_da
 
     formula <- glue::glue("{numerator} ~ trend_variable")
     if(!is.null(denominator)) formula <- glue::glue("{formula} + offset(log({denominator}))")
-    model <- glm2::glm2(as.formula(formula), data = training_data, family = stats::poisson(link = "log"))
+    model <- glm2::glm2(as.formula(formula), data = training_data, family = stats::quasipoisson(link = "log"))
 
     vals <- coef(summary(model))
     co <- vals["trend_variable", "Estimate"]
@@ -69,10 +69,10 @@ short_term_trend_internal <- function(x, numerator, denominator = NULL, trend_da
         trend[i] <- "increasing"
       }
     }
-    doubling_time[i] <- log(2)/co
+    doubling_time[i] <- nrow(with_pred)*log(2)/co # remember to scale it so that it is per day!!
   }
   trend <- factor(trend, levels = c("decreasing", "null", "increasing"))
-  forecasted <- prediction_thresholds(model, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
+  forecasted <- prediction_interval(model, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
 
   suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := forecasted$point])
   suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q02x5_numerator) := forecasted$lower])

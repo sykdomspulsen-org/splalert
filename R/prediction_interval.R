@@ -5,8 +5,8 @@
 #' @param z Similar to \code{alpha} (e.g. z=1.96 is the same as alpha=0.05)
 #' @param ... dots
 #' @export
-prediction_thresholds <- function(object, newdata, alpha = 0.05, z = NULL, ...){
-  UseMethod("prediction_thresholds", object)
+prediction_interval <- function(object, newdata, alpha = 0.05, z = NULL, ...){
+  UseMethod("prediction_interval", object)
 }
 
 
@@ -17,9 +17,9 @@ prediction_thresholds <- function(object, newdata, alpha = 0.05, z = NULL, ...){
 #' @param z Similar to \code{alpha} (e.g. z=1.96 is the same as alpha=0.05)
 #' @param skewness_transform "none", "1/2", "2/3"
 #' @param ... dots
-#' @method prediction_thresholds glm
+#' @method prediction_interval glm
 #' @export
-prediction_thresholds.glm <- function(object, newdata, alpha = 0.05, z = NULL, skewness_transform = "none", ...){
+prediction_interval.glm <- function(object, newdata, alpha = 0.05, z = NULL, skewness_transform = "none", ...){
   stopifnot(object$family$family %in% c("poisson", "quasipoisson"))
   stopifnot(skewness_transform %in% c("none", "1/2", "2/3"))
 
@@ -40,7 +40,7 @@ prediction_thresholds.glm <- function(object, newdata, alpha = 0.05, z = NULL, s
     se <- sqrt(4 / 9 * mu0^(1 / 3) * tau)
     exponent <- 2 / 3
   }, {
-    stop("No proper exponent in prediction_thresholds.glm")
+    stop("No proper exponent in prediction_interval.glm")
   })
 
   if (is.null(z)) z <- qnorm(1 - alpha / 2)

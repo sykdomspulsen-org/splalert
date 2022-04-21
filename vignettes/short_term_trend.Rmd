@@ -35,15 +35,17 @@ d <- spltidy::splfmt_rts_data_v1(data.table(
 set.seed(4)
 d[, cases_n := rpois(.N, lambda = seasonweek*4)]
 
-res <- splalert::short_term_trend(d, outcome = "cases_n", trend_days = 28, remove_last_days = 7)
+res <- splalert::short_term_trend(d, numerator = "cases_n", trend_days = 28, remove_last_days = 7)
 res
 
 q <- ggplot(res, aes(x = date, y = cases_n))
 q <- q + geom_rect(aes(xmin = date-1, xmax=date, ymin = -Inf, ymax = Inf, fill = cases_trend0_28_n_status), alpha = 0.5)
 q <- q + geom_line(lwd = 1)
+q <- q + geom_ribbon(lwd = 1, aes(ymin = cases_forecasted_predinterval_q02x5_n, ymax = cases_forecasted_predinterval_q97x5_n), fill = "red", alpha = 0.5)
+q <- q + geom_line(lwd = 1, aes(y = cases_forecasted_n), color = "red")
 q <- q + scale_y_continuous(expand = c(0, 0.1))
 q <- q + splstyle::scale_fill_fhi(palette = "contrast")
-q <- q + splstyle::theme_fhi_lines_horizontal()
+q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
 q
 
 q <- ggplot(res, aes(x = date, y = cases_doublingdays0_28_n))
@@ -51,6 +53,6 @@ q <- q + geom_rect(aes(xmin = date-1, xmax=date, ymin = 1, ymax = Inf, fill = ca
 q <- q + geom_line(lwd = 1)
 q <- q + scale_y_continuous(trans = "log10", expand = c(0, 0.1))
 q <- q + splstyle::scale_fill_fhi(palette = "contrast")
-q <- q + splstyle::theme_fhi_lines_horizontal()
+q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
 q
 ```

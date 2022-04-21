@@ -4,16 +4,27 @@
 \alias{short_term_trend}
 \title{Determine the short term trend}
 \usage{
-short_term_trend(x, outcome, trend_days = 14, remove_last_days = 0)
+short_term_trend(
+  x,
+  numerator,
+  denominator = NULL,
+  trend_days = 14,
+  remove_last_days = 0,
+  forecast_days = trend_days
+)
 }
 \arguments{
 \item{x}{Data object}
 
-\item{outcome}{Character of outcome}
+\item{numerator}{Character of name of numerator}
+
+\item{denominator}{Character of name of denominator (optional)}
 
 \item{trend_days}{Number of days you want to check the trend}
 
 \item{remove_last_days}{Number of days you want to remove at the end (due to unreliable data)}
+
+\item{forecast_days}{Number of days you want to forecast into the future}
 }
 \description{
 Determine the short term trend

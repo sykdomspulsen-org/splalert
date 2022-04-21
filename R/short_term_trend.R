@@ -7,12 +7,12 @@ gen_data_short_term_trend <- function(){
     border = 2020
   ))
   set.seed(4)
-  d[, cases_n := rpois(.N, lambda = 1:.N)]
+  d[, cases_n := rpois(.N, lambda = seasonweek*4)]
   return(d)
 }
 
 
-short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_days = 0) {
+short_term_trend_internal <- function(x, numerator, denominator = NULL, trend_days = 14, remove_last_days = 0, forecast_days = trend_days) {
   num_unique_ts <- spltidy::unique_time_series(x) %>%
     nrow()
   if(num_unique_ts>1){
@@ -23,28 +23,43 @@ short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_d
     stop("granularity_time is not day or isoweek")
   }
 
-  doubling_time <- rep(NA_real_, nrow(x))
-  trend <- rep(NA_character_, nrow(x))
+  with_pred <- spltidy::expand_time_to(x, max_date = max(x$date)+forecast_days)
 
-  indexes <- nrow(x):1
+  suffix <- stringr::str_extract(numerator, "_[a-z]+$")
+  varname_forecast_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted", suffix)
+  varname_forecast_predinterval_q02x5_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_predinterval_q02x5", suffix)
+  varname_forecast_predinterval_q97x5_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_predinterval_q97x5", suffix)
+  varname_forecast_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted", suffix)
+  # varname_forecast_denominator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecast_", suffix)
+  varname_trend <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_trend0_",trend_days, suffix, "_status")
+  varname_days_to_double <- paste0(stringr::str_remove(numerator, "_[a-z]$"), "_doublingdays0_",trend_days, suffix)
+
+  with_pred[, to_be_forecasted := FALSE]
+  with_pred[(.N-remove_last_days-forecast_days+1):.N, to_be_forecasted := TRUE]
+
+  with_pred[to_be_forecasted == TRUE, (varname_forecast_numerator) := get(numerator)]
+  with_pred[, trend_variable := 1:.N / .N]
+
+  doubling_time <- rep(NA_real_, nrow(with_pred))
+  trend <- rep(NA_character_, nrow(with_pred))
+
   #if(remove_last_days > 0) indexes <- indexes[-c(1:remove_last_days)]
   #indexes <- indexes[which(spltime::keep_sundays_and_latest_date(x$date[indexes]) != "delete")]
-  for(i in indexes){
+  for(i in seq_len(nrow(x)-remove_last_days)){
     index <- (i - trend_days + 1):i
-    if(i > (nrow(x) - remove_last_days)){
-      next()
-    } else if(min(index) < 1){
+    if(min(index) < 1){
       next()
     }
 
-    fit <- x[index]
-    fit[, trend_days := 1:.N]
+    training_data <- with_pred[index]
 
-    model <- glm2::glm2(as.formula(glue::glue("{outcome} ~ trend_days")), data = fit, family = "quasipoisson")
+    formula <- glue::glue("{numerator} ~ trend_variable")
+    if(!is.null(denominator)) formula <- glue::glue("{formula} + offset(log({denominator}))")
+    model <- glm2::glm2(as.formula(formula), data = training_data, family = stats::poisson(link = "log"))
 
     vals <- coef(summary(model))
-    co <- vals["trend_days", "Estimate"]
-    pval <- vals["trend_days",][[4]]
+    co <- vals["trend_variable", "Estimate"]
+    pval <- vals["trend_variable",][[4]]
     if(pval > 0.05){
       trend[i] <- "null"
     } else {
@@ -57,30 +72,40 @@ short_term_trend_internal <- function(x, outcome, trend_days = 14, remove_last_d
     doubling_time[i] <- log(2)/co
   }
   trend <- factor(trend, levels = c("decreasing", "null", "increasing"))
+  forecasted <- prediction_thresholds(model, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
 
-  suffix <- stringr::str_extract(outcome, "_[a-z]+$")
-  varname_trend <- paste0(stringr::str_remove(outcome, "_[a-z]+$"), "_trend0_",trend_days, suffix, "_status")
-  varname_days_to_double <- paste0(stringr::str_remove(outcome, "_[a-z]$"), "_doublingdays0_",trend_days, suffix)
-  x[, (varname_trend) := trend]
-  x[, (varname_days_to_double) := round(doubling_time, 1)]
+  suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := forecasted$point])
+  suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q02x5_numerator) := forecasted$lower])
+  suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q97x5_numerator) := forecasted$upper])
 
-  return(x)
+  with_pred[, trend_variable := NULL]
+  with_pred[, to_be_forecasted := NULL]
+
+  with_pred[, (varname_trend) := trend]
+  with_pred[, (varname_days_to_double) := doubling_time]
+
+  return(with_pred)
 }
 
 #' Determine the short term trend
 #' @param x Data object
-#' @param outcome Character of outcome
+#' @param numerator Character of name of numerator
+#' @param denominator Character of name of denominator (optional)
 #' @param trend_days Number of days you want to check the trend
 #' @param remove_last_days Number of days you want to remove at the end (due to unreliable data)
+#' @param forecast_days Number of days you want to forecast into the future
 #' @export
-short_term_trend <- function(x, outcome, trend_days = 14, remove_last_days = 0){
+short_term_trend <- function(x, numerator, denominator = NULL, trend_days = 14, remove_last_days = 0, forecast_days = trend_days){
   UseMethod("short_term_trend", x)
 }
 
 #' @method short_term_trend splfmt_rts_data_v1
 #' @export
-short_term_trend.splfmt_rts_data_v1 <- function(x, outcome, trend_days = 14, remove_last_days = 0){
-  if(!"time_series_id" %in% names(x)) on.exit(x[, time_series_id := NULL])
+short_term_trend.splfmt_rts_data_v1 <- function(x, numerator, denominator = NULL, trend_days = 14, remove_last_days = 0, forecast_days = trend_days){
+  if(!"time_series_id" %in% names(x)) on.exit({
+    x[, time_series_id := NULL]
+    retval[, time_series_id := NULL]
+  })
 
   num_unique_ts <- spltidy::unique_time_series(x, set_time_series_id = TRUE) %>%
     nrow()
@@ -88,12 +113,14 @@ short_term_trend.splfmt_rts_data_v1 <- function(x, outcome, trend_days = 14, rem
   if(num_unique_ts > 1){
     ds <- split(x, x$time_series_id)
     retval <- lapply(ds, function(y){
-      short_term_trend_internal(y, outcome = outcome, trend_days = trend_days, remove_last_days = remove_last_days)
+      short_term_trend_internal(y, numerator = numerator, denominator = denominator, trend_days = trend_days, remove_last_days = remove_last_days, forecast_days = forecast_days)
     })
     retval <- rbindlist(retval) #unlist(retval, recursive = FALSE, use.names = FALSE)
   } else {
-    retval <- short_term_trend_internal(x, outcome = outcome, trend_days = trend_days, remove_last_days = remove_last_days)
+    retval <- short_term_trend_internal(x, numerator = numerator, denominator = denominator, trend_days = trend_days, remove_last_days = remove_last_days, forecast_days = forecast_days)
   }
+
+  spltidy::set_splfmt_rts_data_v1(retval)
 
   data.table::shouldPrint(retval)
 

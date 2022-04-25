@@ -22,7 +22,8 @@ short_term_trend_internal <- function(
   forecast_days = trend_days,
   trend_isoweeks = ceiling(trend_days / 7),
   remove_last_isoweeks = ceiling(remove_last_days / 7),
-  forecast_isoweeks = trend_isoweeks
+  forecast_isoweeks = trend_isoweeks,
+  naming_prefix = "from_numerator"
   ){
 
   num_unique_ts <- spltidy::unique_time_series(x) %>%
@@ -43,6 +44,8 @@ short_term_trend_internal <- function(
     remove_last_rows <- remove_last_isoweeks
     forecast_rows <- forecast_isoweeks
 
+    trend_days <- trend_isoweeks * 7
+
     with_pred <- spltidy::expand_time_to(x, max_isoyearweek = spltime::date_to_isoyearweek_c(max(x$date)+forecast_isoweeks*7))
   } else {
     if(trend_days < 14){
@@ -56,28 +59,37 @@ short_term_trend_internal <- function(
   }
 
   suffix <- stringr::str_extract(numerator, "_[a-z]+$")
-  varname_forecast_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted", suffix)
-  varname_forecast_predinterval_q02x5_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_predinterval_q02x5", suffix)
-  varname_forecast_predinterval_q97x5_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_predinterval_q97x5", suffix)
-  varname_forecast_numerator <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted", suffix)
+  if(naming_prefix=="from_numerator"){
+    prefix <- stringr::str_remove(numerator, "_[a-z]+$")
+  } else if(naming_prefix=="generic") {
+    prefix <- "value"
+  } else {
+    prefix <- naming_prefix
+  }
+
+  varname_forecast_numerator <- paste0(prefix, "_forecasted", suffix)
+  varname_forecast_predinterval_q02x5_numerator <- paste0(prefix, "_forecasted_predinterval_q02x5", suffix)
+  varname_forecast_predinterval_q97x5_numerator <- paste0(prefix, "_forecasted_predinterval_q97x5", suffix)
+  varname_forecast_numerator <- paste0(prefix, "_forecasted", suffix)
   if(!is.null(denominator)){
     varname_forecast_denominator <- paste0(stringr::str_remove(denominator, "_[a-z]+$"), "_forecasted", suffix)
 
-    varname_forecast_prX <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_pr", prX)
-    varname_forecast_prX_is_forecast <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_pr", prX,"_forecast")
-    varname_forecast_predinterval_q02x5_prX <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_predinterval_q02x5_pr", prX)
-    varname_forecast_predinterval_q97x5_prX <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_forecasted_predinterval_q97x5_pr", prX)
+    varname_forecast_prX <- paste0(prefix, "_forecasted_pr", prX)
+    varname_forecast_prX_is_forecast <- paste0(prefix, "_forecasted_pr", prX,"_forecast")
+    varname_forecast_predinterval_q02x5_prX <- paste0(prefix, "_forecasted_predinterval_q02x5_pr", prX)
+    varname_forecast_predinterval_q97x5_prX <- paste0(prefix, "_forecasted_predinterval_q97x5_pr", prX)
 
-    varname_trend <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_trend0_",trend_days, "_pr", prX, "_status")
+    varname_trend <- paste0(prefix, "_trend0_",trend_days, "_pr", prX, "_status")
     varname_days_to_double <- paste0(stringr::str_remove(numerator, "_[a-z]$"), "_doublingdays0_",trend_days, "_pr", prX)
 
     varname_forecast <- paste0(varname_forecast_prX, "_forecast")
   } else {
-    varname_trend <- paste0(stringr::str_remove(numerator, "_[a-z]+$"), "_trend0_",trend_days, suffix, "_status")
+    varname_trend <- paste0(prefix, "_trend0_",trend_days, suffix, "_status")
     varname_days_to_double <- paste0(stringr::str_remove(numerator, "_[a-z]$"), "_doublingdays0_",trend_days, suffix)
 
     varname_forecast <- paste0(varname_forecast_numerator, "_forecast")
   }
+
 
   with_pred[, to_be_forecasted := FALSE]
   with_pred[(.N-remove_last_rows-forecast_rows+1):.N, to_be_forecasted := TRUE]
@@ -102,46 +114,74 @@ short_term_trend_internal <- function(
     formula <- glue::glue("{varname_forecast_numerator} ~ trend_variable")
     if(!is.null(denominator)){
       formula_denominator <- glue::glue("{varname_forecast_denominator} ~ trend_variable")
-      model_denominator <- glm2::glm2(as.formula(formula_denominator), data = training_data, family = stats::quasipoisson(link = "log"))
+      tryCatch({
+        model_denominator <- glm2::glm2(as.formula(formula_denominator), data = training_data, family = stats::quasipoisson(link = "log"))
+      },
+      error = function(e){
+        model_denominator <- NULL
+      })
       formula <- glue::glue("{formula} + offset(log({varname_forecast_denominator}))")
     }
-    model <- glm2::glm2(as.formula(formula), data = training_data, family = stats::quasipoisson(link = "log"))
 
-    vals <- coef(summary(model))
-    co <- vals["trend_variable", "Estimate"]
-    pval <- vals["trend_variable",][[4]]
-    if(pval > 0.05){
-      trend[i] <- "null"
-    } else {
-      if(co < 0){
-        trend[i] <- "decreasing"
-      } else{
-        trend[i] <- "increasing"
+    model <- NULL
+    tryCatch({
+      model <- glm2::glm2(as.formula(formula), data = training_data, family = stats::quasipoisson(link = "log"))
+
+      vals <- coef(summary(model))
+      co <- vals["trend_variable", "Estimate"]
+      pval <- vals["trend_variable",][[4]]
+      if(pval > 0.05){
+        trend[i] <- "null"
+      } else {
+        if(co < 0){
+          trend[i] <- "decreasing"
+        } else{
+          trend[i] <- "increasing"
+        }
       }
+      doubling_time[i] <- nrow(with_pred)*log(2)/co # remember to scale it so that it is per day!!
+      if(gran_time=="isoweek"){
+        doubling_time[i] <- doubling_time[i]*7 # remember to scale it so that it is per day!!
+      }
+    },error = function(e){
+      warning("Error in fitting model")
     }
-    doubling_time[i] <- nrow(with_pred)*log(2)/co # remember to scale it so that it is per day!!
-    if(gran_time=="isoweek"){
-      doubling_time[i] <- doubling_time[i]*7 # remember to scale it so that it is per day!!
-    }
+    )
   }
   trend <- factor(trend, levels = c("decreasing", "null", "increasing"))
-  if(!is.null(denominator)){
-    forecasted_denominator <- prediction_interval(model_denominator, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
-    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_denominator) := round(forecasted_denominator$point)])
-  }
+  if(is.null(model) | (!is.null(denominator) & is.null(model_denominator))){
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_denominator) := NA_real_])
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := NA_real_])
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q02x5_numerator) := NA_real_])
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q97x5_numerator) := NA_real_])
 
-  forecasted <- prediction_interval(model, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
-  suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := round(forecasted$point)])
-  suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q02x5_numerator) := round(forecasted$lower)])
-  suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q97x5_numerator) := round(forecasted$upper)])
+    if(!is.null(denominator)){
+      with_pred[, (varname_forecast_prX) := NA_real_]
+      with_pred[, (varname_forecast_predinterval_q02x5_prX) := NA_real_]
+      with_pred[, (varname_forecast_predinterval_q97x5_prX) := NA_real_]
 
-  if(!is.null(denominator)){
-    with_pred[, (varname_forecast_prX) := prX * get(varname_forecast_numerator) / get(varname_forecast_denominator)]
-    with_pred[, (varname_forecast_predinterval_q02x5_prX) := prX * get(varname_forecast_predinterval_q02x5_numerator) / get(varname_forecast_denominator)]
-    with_pred[, (varname_forecast_predinterval_q97x5_prX) := prX * get(varname_forecast_predinterval_q97x5_numerator) / get(varname_forecast_denominator)]
+      suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
+      suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
+    }
+  } else {
+    if(!is.null(denominator)){
+      forecasted_denominator <- prediction_interval(model_denominator, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
+      suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_denominator) := round(forecasted_denominator$point)])
+    }
 
-    suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
-    suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
+    forecasted <- prediction_interval(model, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := round(forecasted$point)])
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q02x5_numerator) := round(forecasted$lower)])
+    suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q97x5_numerator) := round(forecasted$upper)])
+
+    if(!is.null(denominator)){
+      with_pred[, (varname_forecast_prX) := prX * get(varname_forecast_numerator) / get(varname_forecast_denominator)]
+      with_pred[, (varname_forecast_predinterval_q02x5_prX) := prX * get(varname_forecast_predinterval_q02x5_numerator) / get(varname_forecast_denominator)]
+      with_pred[, (varname_forecast_predinterval_q97x5_prX) := prX * get(varname_forecast_predinterval_q97x5_numerator) / get(varname_forecast_denominator)]
+
+      suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
+      suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
+    }
   }
 
   with_pred[, trend_variable := NULL]
@@ -164,6 +204,7 @@ short_term_trend_internal <- function(
 #' @param trend_isoweeks Same as trend_days, but used if granularity_geo=='isoweek'
 #' @param remove_last_isoweeks Same as remove_last_days, but used if granularity_geo=='isoweek'
 #' @param forecast_isoweeks Same as forecast_days, but used if granularity_geo=='isoweek'
+#' @param naming_prefix "from_numerator", "generic", or a custom prefix
 #' @export
 short_term_trend <- function(
   x,
@@ -175,8 +216,9 @@ short_term_trend <- function(
   forecast_days = trend_days,
   trend_isoweeks = ceiling(trend_days / 7),
   remove_last_isoweeks = ceiling(remove_last_days / 7),
-  forecast_isoweeks = trend_isoweeks
-  ){
+  forecast_isoweeks = trend_isoweeks,
+  naming_prefix = "from_numerator"
+){
   UseMethod("short_term_trend", x)
 }
 
@@ -192,7 +234,8 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   forecast_days = trend_days,
   trend_isoweeks = ceiling(trend_days / 7),
   remove_last_isoweeks = ceiling(remove_last_days / 7),
-  forecast_isoweeks = trend_isoweeks
+  forecast_isoweeks = trend_isoweeks,
+  naming_prefix = "from_numerator"
   ){
   if(!"time_series_id" %in% names(x)) on.exit({
     x[, time_series_id := NULL]
@@ -205,6 +248,7 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   if(num_unique_ts > 1){
     ds <- split(x, x$time_series_id)
     retval <- lapply(ds, function(y){
+      y[, time_series_id := NULL]
       short_term_trend_internal(
         y,
         numerator = numerator,
@@ -215,7 +259,8 @@ short_term_trend.splfmt_rts_data_v1 <- function(
         forecast_days = forecast_days,
         trend_isoweeks = trend_isoweeks,
         remove_last_isoweeks = remove_last_isoweeks,
-        forecast_isoweeks = forecast_isoweeks
+        forecast_isoweeks = forecast_isoweeks,
+        naming_prefix = naming_prefix
       )
     })
     retval <- rbindlist(retval) #unlist(retval, recursive = FALSE, use.names = FALSE)
@@ -230,8 +275,9 @@ short_term_trend.splfmt_rts_data_v1 <- function(
       forecast_days = forecast_days,
       trend_isoweeks = trend_isoweeks,
       remove_last_isoweeks = remove_last_isoweeks,
-      forecast_isoweeks = forecast_isoweeks
-      )
+      forecast_isoweeks = forecast_isoweeks,
+      naming_prefix = naming_prefix
+    )
   }
 
   spltidy::set_splfmt_rts_data_v1(retval)

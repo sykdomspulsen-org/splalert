@@ -248,7 +248,6 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   if(num_unique_ts > 1){
     ds <- split(x, x$time_series_id)
     retval <- lapply(ds, function(y){
-      y[, time_series_id := NULL]
       short_term_trend_internal(
         y,
         numerator = numerator,

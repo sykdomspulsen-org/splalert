@@ -112,6 +112,8 @@ short_term_trend_internal <- function(
     training_data <- with_pred[index]
 
     formula <- glue::glue("{varname_forecast_numerator} ~ trend_variable")
+
+    model_denominator <- NULL
     if(!is.null(denominator)){
       formula_denominator <- glue::glue("{varname_forecast_denominator} ~ trend_variable")
       tryCatch({

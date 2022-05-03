@@ -271,10 +271,14 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   denominator_naming_prefix = "from_denominator",
   remove_training_data = FALSE
   ){
-  if(!"time_series_id" %in% names(x)) on.exit({
-    x[, time_series_id := NULL]
-    if("time_series_id" %in% names(retval)) retval[, time_series_id := NULL]
-  })
+  if(!"time_series_id" %in% names(x)){
+    on.exit({
+      x[, time_series_id := NULL]
+    })
+    remove_time_series_id <- TRUE
+  } else {
+    remove_time_series_id <- FALSE
+  }
 
   num_unique_ts <- spltidy::unique_time_series(x, set_time_series_id = TRUE) %>%
     nrow()
@@ -316,6 +320,8 @@ short_term_trend.splfmt_rts_data_v1 <- function(
       remove_training_data = remove_training_data
     )
   }
+
+  if(remove_time_series_id & "time_series_id" %in% names(retval)) retval[, time_series_id := NULL]
 
   spltidy::set_splfmt_rts_data_v1(retval)
 

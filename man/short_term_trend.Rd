@@ -15,7 +15,9 @@ short_term_trend(
   trend_isoweeks = ceiling(trend_days/7),
   remove_last_isoweeks = ceiling(remove_last_days/7),
   forecast_isoweeks = trend_isoweeks,
-  naming_prefix = "from_numerator"
+  numerator_naming_prefix = "from_numerator",
+  denominator_naming_prefix = "from_denominator",
+  remove_training_data = FALSE
 )
 }
 \arguments{
@@ -39,7 +41,11 @@ short_term_trend(
 
 \item{forecast_isoweeks}{Same as forecast_days, but used if granularity_geo=='isoweek'}
 
-\item{naming_prefix}{"from_numerator", "generic", or a custom prefix}
+\item{numerator_naming_prefix}{"from_numerator", "generic", or a custom prefix}
+
+\item{denominator_naming_prefix}{"from_denominator", "generic", or a custom prefix}
+
+\item{remove_training_data}{Boolean. If TRUE, removes the training data (i.e. 1:(trend_days-1) or 1:(trend_isoweeks-1)) from the returned dataset.}
 }
 \description{
 Determine the short term trend

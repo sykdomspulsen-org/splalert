@@ -23,7 +23,9 @@ short_term_trend_internal <- function(
   trend_isoweeks = ceiling(trend_days / 7),
   remove_last_isoweeks = ceiling(remove_last_days / 7),
   forecast_isoweeks = trend_isoweeks,
-  naming_prefix = "from_numerator"
+  numerator_naming_prefix = "from_numerator",
+  denominator_naming_prefix = "from_denominator",
+  remove_training_data = FALSE
   ){
 
   num_unique_ts <- spltidy::unique_time_series(x) %>%
@@ -59,12 +61,20 @@ short_term_trend_internal <- function(
   }
 
   suffix <- stringr::str_extract(numerator, "_[a-z]+$")
-  if(naming_prefix=="from_numerator"){
+  if(numerator_naming_prefix=="from_numerator"){
     prefix <- stringr::str_remove(numerator, "_[a-z]+$")
-  } else if(naming_prefix=="generic") {
+  } else if(numerator_naming_prefix=="generic") {
     prefix <- "value"
   } else {
-    prefix <- naming_prefix
+    prefix <- numerator_naming_prefix
+  }
+
+  if(denominator_naming_prefix=="from_denominator"){
+    prefix_denom <- stringr::str_remove(denominator, "_[a-z]+$")
+  } else if(denominator_naming_prefix=="generic") {
+    prefix_denom <- "denom"
+  } else {
+    prefix_denom <- denominator_naming_prefix
   }
 
   varname_forecast_numerator <- paste0(prefix, "_forecasted", suffix)
@@ -72,7 +82,7 @@ short_term_trend_internal <- function(
   varname_forecast_predinterval_q97x5_numerator <- paste0(prefix, "_forecasted_predinterval_q97x5", suffix)
   varname_forecast_numerator <- paste0(prefix, "_forecasted", suffix)
   if(!is.null(denominator)){
-    varname_forecast_denominator <- paste0(stringr::str_remove(denominator, "_[a-z]+$"), "_forecasted", suffix)
+    varname_forecast_denominator <- paste0(prefix_denom, "_forecasted", suffix)
 
     varname_forecast_prX <- paste0(prefix, "_forecasted_pr", prX)
     varname_forecast_prX_is_forecast <- paste0(prefix, "_forecasted_pr", prX,"_forecast")
@@ -80,12 +90,12 @@ short_term_trend_internal <- function(
     varname_forecast_predinterval_q97x5_prX <- paste0(prefix, "_forecasted_predinterval_q97x5_pr", prX)
 
     varname_trend <- paste0(prefix, "_trend0_",trend_days, "_pr", prX, "_status")
-    varname_days_to_double <- paste0(stringr::str_remove(numerator, "_[a-z]$"), "_doublingdays0_",trend_days, "_pr", prX)
+    varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, "_pr", prX)
 
     varname_forecast <- paste0(varname_forecast_prX, "_forecast")
   } else {
     varname_trend <- paste0(prefix, "_trend0_",trend_days, suffix, "_status")
-    varname_days_to_double <- paste0(stringr::str_remove(numerator, "_[a-z]$"), "_doublingdays0_",trend_days, suffix)
+    varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, suffix)
 
     varname_forecast <- paste0(varname_forecast_numerator, "_forecast")
   }
@@ -115,6 +125,9 @@ short_term_trend_internal <- function(
 
     model_denominator <- NULL
     if(!is.null(denominator)){
+      # if denominator is zero, replace with 1
+      training_data[get(varname_forecast_denominator)==0, (varname_forecast_denominator) := 1]
+
       formula_denominator <- glue::glue("{varname_forecast_denominator} ~ trend_variable")
       tryCatch({
         model_denominator <- glm2::glm2(as.formula(formula_denominator), data = training_data, family = stats::quasipoisson(link = "log"))
@@ -169,6 +182,8 @@ short_term_trend_internal <- function(
     if(!is.null(denominator)){
       forecasted_denominator <- prediction_interval(model_denominator, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
       suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_denominator) := round(forecasted_denominator$point)])
+      # if denominator is zero, replace with 1
+      with_pred[to_be_forecasted==TRUE & get(varname_forecast_denominator)==0, (varname_forecast_denominator) := 1]
     }
 
     forecasted <- prediction_interval(model, with_pred[to_be_forecasted==TRUE], alpha = 0.05)
@@ -177,9 +192,18 @@ short_term_trend_internal <- function(
     suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_predinterval_q97x5_numerator) := round(forecasted$upper)])
 
     if(!is.null(denominator)){
+      # if numerator is predicted to be bigger than denominator, set numerator to denominator
+      # todo: this probably should be fixed
+      with_pred[get(varname_forecast_numerator) > get(varname_forecast_denominator), (varname_forecast_numerator) := get(varname_forecast_denominator)]
+
       with_pred[, (varname_forecast_prX) := prX * get(varname_forecast_numerator) / get(varname_forecast_denominator)]
+      with_pred[is.nan(get(varname_forecast_prX)), (varname_forecast_prX) := 0]
+
       with_pred[, (varname_forecast_predinterval_q02x5_prX) := prX * get(varname_forecast_predinterval_q02x5_numerator) / get(varname_forecast_denominator)]
+      with_pred[is.nan(get(varname_forecast_predinterval_q02x5_prX)), (varname_forecast_predinterval_q02x5_prX) := 0]
+
       with_pred[, (varname_forecast_predinterval_q97x5_prX) := prX * get(varname_forecast_predinterval_q97x5_numerator) / get(varname_forecast_denominator)]
+      with_pred[is.nan(get(varname_forecast_predinterval_q97x5_prX)), (varname_forecast_predinterval_q97x5_prX) := 0]
 
       suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
       suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
@@ -191,6 +215,8 @@ short_term_trend_internal <- function(
 
   with_pred[, (varname_trend) := trend]
   with_pred[, (varname_days_to_double) := round(doubling_time,1)]
+
+  if(remove_training_data) with_pred <- with_pred[-(1:(trend_rows-1))]
 
   return(with_pred)
 }
@@ -206,7 +232,9 @@ short_term_trend_internal <- function(
 #' @param trend_isoweeks Same as trend_days, but used if granularity_geo=='isoweek'
 #' @param remove_last_isoweeks Same as remove_last_days, but used if granularity_geo=='isoweek'
 #' @param forecast_isoweeks Same as forecast_days, but used if granularity_geo=='isoweek'
-#' @param naming_prefix "from_numerator", "generic", or a custom prefix
+#' @param numerator_naming_prefix "from_numerator", "generic", or a custom prefix
+#' @param denominator_naming_prefix "from_denominator", "generic", or a custom prefix
+#' @param remove_training_data Boolean. If TRUE, removes the training data (i.e. 1:(trend_days-1) or 1:(trend_isoweeks-1)) from the returned dataset.
 #' @export
 short_term_trend <- function(
   x,
@@ -219,7 +247,9 @@ short_term_trend <- function(
   trend_isoweeks = ceiling(trend_days / 7),
   remove_last_isoweeks = ceiling(remove_last_days / 7),
   forecast_isoweeks = trend_isoweeks,
-  naming_prefix = "from_numerator"
+  numerator_naming_prefix = "from_numerator",
+  denominator_naming_prefix = "from_denominator",
+  remove_training_data = FALSE
 ){
   UseMethod("short_term_trend", x)
 }
@@ -237,7 +267,9 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   trend_isoweeks = ceiling(trend_days / 7),
   remove_last_isoweeks = ceiling(remove_last_days / 7),
   forecast_isoweeks = trend_isoweeks,
-  naming_prefix = "from_numerator"
+  numerator_naming_prefix = "from_numerator",
+  denominator_naming_prefix = "from_denominator",
+  remove_training_data = FALSE
   ){
   if(!"time_series_id" %in% names(x)) on.exit({
     x[, time_series_id := NULL]
@@ -261,7 +293,9 @@ short_term_trend.splfmt_rts_data_v1 <- function(
         trend_isoweeks = trend_isoweeks,
         remove_last_isoweeks = remove_last_isoweeks,
         forecast_isoweeks = forecast_isoweeks,
-        naming_prefix = naming_prefix
+        numerator_naming_prefix = numerator_naming_prefix,
+        denominator_naming_prefix = denominator_naming_prefix,
+        remove_training_data = remove_training_data
       )
     })
     retval <- rbindlist(retval) #unlist(retval, recursive = FALSE, use.names = FALSE)
@@ -277,7 +311,9 @@ short_term_trend.splfmt_rts_data_v1 <- function(
       trend_isoweeks = trend_isoweeks,
       remove_last_isoweeks = remove_last_isoweeks,
       forecast_isoweeks = forecast_isoweeks,
-      naming_prefix = naming_prefix
+      numerator_naming_prefix = numerator_naming_prefix,
+      denominator_naming_prefix = denominator_naming_prefix,
+      remove_training_data = remove_training_data
     )
   }
 

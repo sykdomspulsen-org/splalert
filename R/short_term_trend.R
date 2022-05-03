@@ -273,7 +273,7 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   ){
   if(!"time_series_id" %in% names(x)) on.exit({
     x[, time_series_id := NULL]
-    retval[, time_series_id := NULL]
+    if("time_series_id" %in% names(retval)) retval[, time_series_id := NULL]
   })
 
   num_unique_ts <- spltidy::unique_time_series(x, set_time_series_id = TRUE) %>%

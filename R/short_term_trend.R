@@ -64,7 +64,7 @@ short_term_trend_internal <- function(
   if(numerator_naming_prefix=="from_numerator"){
     prefix <- stringr::str_remove(numerator, "_[a-z]+$")
   } else if(numerator_naming_prefix=="generic") {
-    prefix <- "value"
+    prefix <- "numerator"
   } else {
     prefix <- numerator_naming_prefix
   }
@@ -286,6 +286,7 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   if(num_unique_ts > 1){
     ds <- split(x, x$time_series_id)
     retval <- lapply(ds, function(y){
+      y[, time_series_id := NULL]
       short_term_trend_internal(
         y,
         numerator = numerator,

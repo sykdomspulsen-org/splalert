@@ -21,7 +21,8 @@ Imports: data.table,
     glm2,
     spltidy,
     spltime,
-    stringr
+    stringr,
+    lubridate
 Suggests: testthat,
     knitr,
     rmarkdown,

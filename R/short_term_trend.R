@@ -72,7 +72,7 @@ short_term_trend_internal <- function(
   if(denominator_naming_prefix=="from_denominator"){
     prefix_denom <- stringr::str_remove(denominator, "_[a-z]+$")
   } else if(denominator_naming_prefix=="generic") {
-    prefix_denom <- "denom"
+    prefix_denom <- "denominator"
   } else {
     prefix_denom <- denominator_naming_prefix
   }

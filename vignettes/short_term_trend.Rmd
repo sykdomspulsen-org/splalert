@@ -33,15 +33,15 @@ res <- splalert::short_term_trend(
   trend_isoweeks = 6,
   remove_last_isoweeks = 1
 )
-res[, hospitalization_with_covid19_as_primary_cause_trend0_42_n_status := factor(
-  hospitalization_with_covid19_as_primary_cause_trend0_42_n_status,
+res[, hospitalization_with_covid19_as_primary_cause_trend0_42_status := factor(
+  hospitalization_with_covid19_as_primary_cause_trend0_42_status,
   levels = c("training","forecast","decreasing", "null", "increasing"),
   labels = c("Training","Forecast","Decreasing", "Null", "Increasing")
 )]
 res[80]
 
 q <- ggplot(res, aes(x = isoyearweek, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, group = 1))
-q <- q + geom_col(mapping = aes(fill = hospitalization_with_covid19_as_primary_cause_trend0_42_n_status ))
+q <- q + geom_col(mapping = aes(fill = hospitalization_with_covid19_as_primary_cause_trend0_42_status ))
 q <- q + geom_errorbar(
   mapping = aes(
     ymin = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q02x5_n,
@@ -66,20 +66,20 @@ res <- splalert::short_term_trend(
   trend_days = 28,
   remove_last_days = 7
 )
-res[, hospitalization_with_covid19_as_primary_cause_trend0_28_n_status := factor(
-  hospitalization_with_covid19_as_primary_cause_trend0_28_n_status,
+res[, hospitalization_with_covid19_as_primary_cause_trend0_28_status := factor(
+  hospitalization_with_covid19_as_primary_cause_trend0_28_status,
   levels = c("training","forecast","decreasing", "null", "increasing"),
   labels = c("Training","Forecast","Decreasing", "Null", "Increasing")
 )]
 res[80]
 
-q <- ggplot(data = res, mapping = aes(x = date, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_n_status))
+q <- ggplot(data = res, mapping = aes(x = date, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_status))
 q <- q + geom_col(alpha = 0) # necessary to get legend to be in right order
 q <- q + geom_col(
-  data = res[hospitalization_with_covid19_as_primary_cause_trend0_28_n_status!="Forecast"]
+  data = res[hospitalization_with_covid19_as_primary_cause_trend0_28_status!="Forecast"]
   )
 q <- q + geom_ribbon(
-  data = res[hospitalization_with_covid19_as_primary_cause_trend0_28_n_status=="Forecast"], 
+  data = res[hospitalization_with_covid19_as_primary_cause_trend0_28_status=="Forecast"], 
   mapping = aes(
     ymin = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q02x5_n,
     ymax = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q97x5_n
@@ -88,8 +88,8 @@ q <- q + geom_ribbon(
 )
 q
 
-q <- ggplot(res, aes(x = date, y = hospitalization_with_covid19_as_primary_cause_doublingdays0_28_n))
-q <- q + geom_rect(aes(xmin = date-1, xmax=date, ymin = 1, ymax = Inf, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_n_status), alpha = 0.5)
+q <- ggplot(res, aes(x = date, y = hospitalization_with_covid19_as_primary_cause_doublingdays0_28))
+q <- q + geom_rect(aes(xmin = date-1, xmax=date, ymin = 1, ymax = Inf, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_status), alpha = 0.5)
 q <- q + geom_line(lwd = 1)
 q <- q + scale_y_continuous(trans = "log10", expand = c(0, 0.1))
 q <- q + splstyle::scale_fill_fhi(palette = "contrast")

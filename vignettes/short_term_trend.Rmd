@@ -31,14 +31,31 @@ res <- splalert::short_term_trend(
   spltidy::norway_covid19_icu_and_hospitalization[granularity_time=="isoweek"], 
   numerator = "hospitalization_with_covid19_as_primary_cause_n",
   trend_isoweeks = 6,
-  remove_last_isoweeks = 0
+  remove_last_isoweeks = 1
 )
 res[, hospitalization_with_covid19_as_primary_cause_trend0_42_n_status := factor(
   hospitalization_with_covid19_as_primary_cause_trend0_42_n_status,
-  levels = c("decreasing", "null", "increasing"),
-  labels = c("Decreasing", "Null", "Increasing")
+  levels = c("training","forecast","decreasing", "null", "increasing"),
+  labels = c("Training","Forecast","Decreasing", "Null", "Increasing")
 )]
 res[]
+
+q <- ggplot(res, aes(x = isoyearweek, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, group = 1))
+q <- q + geom_col(mapping = aes(fill = hospitalization_with_covid19_as_primary_cause_trend0_42_n_status ))
+q <- q + geom_errorbar(
+  mapping = aes(
+    ymin = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q02x5_n,
+    ymax = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q97x5_n
+  )
+)
+q <- q + scale_y_continuous("Weekly hospitalization with Covid-19 as primary cause", expand = c(0, 0.1))
+q <- q + scale_x_discrete("Isoyearweek", breaks = splstyle::every_nth(8))
+q <- q + expand_limits(y=0)
+q <- q + splstyle::scale_fill_fhi("6 week trend", palette = "contrast")
+q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
+q <- q + splstyle::set_x_axis_vertical()
+q
+
 q <- ggplot(res, aes(x = date, y = hospitalization_with_covid19_as_primary_cause_forecasted_n))
 q <- q + geom_rect(data = res[!is.na(hospitalization_with_covid19_as_primary_cause_trend0_42_n_status)], mapping = aes(xmin = date-7, xmax=date, ymin = -Inf, ymax = Inf, fill = hospitalization_with_covid19_as_primary_cause_trend0_42_n_status), alpha = 0.5)
 q <- q + geom_ribbon(lwd = 1, aes(ymin = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q02x5_n, ymax = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q97x5_n   ), fill = "red", alpha = 0.5)
@@ -59,24 +76,34 @@ res <- splalert::short_term_trend(
   spltidy::norway_covid19_icu_and_hospitalization[granularity_time=="day"], 
   numerator = "hospitalization_with_covid19_as_primary_cause_n",
   trend_days = 28,
-  remove_last_days = 0
+  remove_last_days = 7
 )
 res[, hospitalization_with_covid19_as_primary_cause_trend0_28_n_status := factor(
   hospitalization_with_covid19_as_primary_cause_trend0_28_n_status,
-  levels = c("decreasing", "null", "increasing"),
-  labels = c("Decreasing", "Null", "Increasing")
+  levels = c("training","forecast","decreasing", "null", "increasing"),
+  labels = c("Training","Forecast","Decreasing", "Null", "Increasing")
 )]
 res[]
-q <- ggplot(res, aes(x = date, y = hospitalization_with_covid19_as_primary_cause_forecasted_n))
-q <- q + geom_rect(data = res[!is.na(hospitalization_with_covid19_as_primary_cause_trend0_28_n_status)], mapping = aes(xmin = date-1, xmax=date, ymin = -Inf, ymax = Inf, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_n_status), alpha = 0.5)
-q <- q + geom_ribbon(lwd = 1, aes(ymin = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q02x5_n, ymax = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q97x5_n   ), fill = "red", alpha = 0.5)
-q <- q + geom_line(lwd = 0.5, aes(color = hospitalization_with_covid19_as_primary_cause_forecasted_n_forecast))
+
+q <- ggplot(data = res, mapping = aes(x = date, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_n_status))
+q <- q + geom_col(alpha = 0) # necessary to get legend to be in right order
+q <- q + geom_col(
+  data = res[hospitalization_with_covid19_as_primary_cause_trend0_28_n_status!="Forecast"]
+  )
+q <- q + geom_ribbon(
+  data = res[hospitalization_with_covid19_as_primary_cause_trend0_28_n_status=="Forecast"], 
+  mapping = aes(
+    ymin = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q02x5_n,
+    ymax = hospitalization_with_covid19_as_primary_cause_forecasted_predinterval_q97x5_n
+  ),
+  alpha = 0.75
+)
 q <- q + scale_y_continuous("Daily hospitalization with Covid-19 as primary cause", expand = c(0, 0.1))
 q <- q + scale_x_date("Date",date_labels ="%Y-%m-%d")
 q <- q + expand_limits(y=0)
-q <- q + splstyle::scale_fill_fhi("28 day trend", palette = "contrast")
-q <- q + splstyle::scale_color_fhi("Forecast", palette = "contrast")
+q <- q + splstyle::scale_fill_fhi("6 week trend", palette = "contrast")
 q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
+q <- q + splstyle::set_x_axis_vertical()
 q
 
 q <- ggplot(res, aes(x = date, y = hospitalization_with_covid19_as_primary_cause_doublingdays0_28_n))

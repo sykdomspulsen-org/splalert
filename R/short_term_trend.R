@@ -84,13 +84,13 @@ short_term_trend_internal <- function(
   if(!is.null(denominator)){
     varname_forecast_denominator <- paste0(prefix_denom, "_forecasted", suffix)
 
-    varname_forecast_prX <- paste0(prefix, "_forecasted_pr", prX)
-    varname_forecast_prX_is_forecast <- paste0(prefix, "_forecasted_pr", prX,"_forecast")
-    varname_forecast_predinterval_q02x5_prX <- paste0(prefix, "_forecasted_predinterval_q02x5_pr", prX)
-    varname_forecast_predinterval_q97x5_prX <- paste0(prefix, "_forecasted_predinterval_q97x5_pr", prX)
+    varname_forecast_prX <- paste0(prefix, "_forecasted_pr", formatC(prX, format="f", digits = 0))
+    varname_forecast_prX_is_forecast <- paste0(prefix, "_forecasted_pr", formatC(prX, format="f", digits = 0),"_forecast")
+    varname_forecast_predinterval_q02x5_prX <- paste0(prefix, "_forecasted_predinterval_q02x5_pr", formatC(prX, format="f", digits = 0))
+    varname_forecast_predinterval_q97x5_prX <- paste0(prefix, "_forecasted_predinterval_q97x5_pr", formatC(prX, format="f", digits = 0))
 
-    varname_trend <- paste0(prefix, "_trend0_",trend_days, "_pr", prX, "_status")
-    varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, "_pr", prX)
+    varname_trend <- paste0(prefix, "_trend0_",trend_days, "_pr", formatC(prX, format="f", digits = 0), "_status")
+    varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, "_pr", formatC(prX, format="f", digits = 0))
 
     varname_forecast <- paste0(varname_forecast_prX, "_forecast")
   } else {
@@ -110,6 +110,8 @@ short_term_trend_internal <- function(
 
   doubling_time <- rep(NA_real_, nrow(with_pred))
   trend <- rep(NA_character_, nrow(with_pred))
+  trend[1:(trend_rows-1)] <- "training"
+  trend[(length(trend)-remove_last_rows-forecast_rows+1):length(trend)] <- "forecast"
 
   #if(remove_last_days > 0) indexes <- indexes[-c(1:remove_last_days)]
   #indexes <- indexes[which(spltime::keep_sundays_and_latest_date(x$date[indexes]) != "delete")]
@@ -163,7 +165,7 @@ short_term_trend_internal <- function(
     }
     )
   }
-  trend <- factor(trend, levels = c("decreasing", "null", "increasing"))
+  trend <- factor(trend, levels = c("training", "forecast", "decreasing", "null", "increasing"))
   if(is.null(model) | (!is.null(denominator) & is.null(model_denominator))){
     suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_denominator) := NA_real_])
     suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := NA_real_])
@@ -196,22 +198,26 @@ short_term_trend_internal <- function(
       # todo: this probably should be fixed
       with_pred[get(varname_forecast_numerator) > get(varname_forecast_denominator), (varname_forecast_numerator) := get(varname_forecast_denominator)]
 
-      with_pred[, (varname_forecast_prX) := prX * get(varname_forecast_numerator) / get(varname_forecast_denominator)]
-      with_pred[is.nan(get(varname_forecast_prX)), (varname_forecast_prX) := 0]
+      for(i in seq_along(prX)){
+        with_pred[, (varname_forecast_prX[i]) := prX[i] * get(varname_forecast_numerator) / get(varname_forecast_denominator)]
+        with_pred[is.nan(get(varname_forecast_prX[i])), (varname_forecast_prX[i]) := 0]
 
-      with_pred[, (varname_forecast_predinterval_q02x5_prX) := prX * get(varname_forecast_predinterval_q02x5_numerator) / get(varname_forecast_denominator)]
-      with_pred[is.nan(get(varname_forecast_predinterval_q02x5_prX)), (varname_forecast_predinterval_q02x5_prX) := 0]
+        with_pred[, (varname_forecast_predinterval_q02x5_prX[i]) := prX[i] * get(varname_forecast_predinterval_q02x5_numerator) / get(varname_forecast_denominator)]
+        with_pred[is.nan(get(varname_forecast_predinterval_q02x5_prX[i])), (varname_forecast_predinterval_q02x5_prX[i]) := 0]
 
-      with_pred[, (varname_forecast_predinterval_q97x5_prX) := prX * get(varname_forecast_predinterval_q97x5_numerator) / get(varname_forecast_denominator)]
-      with_pred[is.nan(get(varname_forecast_predinterval_q97x5_prX)), (varname_forecast_predinterval_q97x5_prX) := 0]
-
+        with_pred[, (varname_forecast_predinterval_q97x5_prX[i]) := prX[i] * get(varname_forecast_predinterval_q97x5_numerator) / get(varname_forecast_denominator)]
+        with_pred[is.nan(get(varname_forecast_predinterval_q97x5_prX[i])), (varname_forecast_predinterval_q97x5_prX[i]) := 0]
+      }
       suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
       suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
     }
   }
 
   with_pred[, trend_variable := NULL]
-  setnames(with_pred, "to_be_forecasted", varname_forecast)
+  for(i in varname_forecast){
+    with_pred[, (i) := to_be_forecasted]
+  }
+  with_pred[, to_be_forecasted := NULL]
 
   with_pred[, (varname_trend) := trend]
   with_pred[, (varname_days_to_double) := round(doubling_time,1)]

@@ -25,6 +25,7 @@ short_term_trend_internal <- function(
   forecast_isoweeks = trend_isoweeks,
   numerator_naming_prefix = "from_numerator",
   denominator_naming_prefix = "from_denominator",
+  statistics_naming_prefix = "universal",
   remove_training_data = FALSE
   ){
 
@@ -89,13 +90,26 @@ short_term_trend_internal <- function(
     varname_forecast_predinterval_q02x5_prX <- paste0(prefix, "_forecasted_predinterval_q02x5_pr", formatC(prX, format="f", digits = 0))
     varname_forecast_predinterval_q97x5_prX <- paste0(prefix, "_forecasted_predinterval_q97x5_pr", formatC(prX, format="f", digits = 0))
 
-    varname_trend <- paste0(prefix, "_trend0_",trend_days, "_pr", formatC(prX, format="f", digits = 0), "_status")
-    varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, "_pr", formatC(prX, format="f", digits = 0))
+    if(statistics_naming_prefix=="universal"){
+      varname_trend <- paste0(prefix, "_trend0_",trend_days, "_status")
+      varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days)
+    } else {
+      varname_trend <- paste0(prefix, "_trend0_",trend_days, "_pr", formatC(prX, format="f", digits = 0), "_status")
+      varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, "_pr", formatC(prX, format="f", digits = 0))
+    }
 
-    varname_forecast <- paste0(varname_forecast_prX, "_forecast")
+    varname_forecast <- c(
+      paste0(varname_forecast_numerator, "_forecast"),
+      paste0(varname_forecast_prX, "_forecast")
+    )
   } else {
-    varname_trend <- paste0(prefix, "_trend0_",trend_days, suffix, "_status")
-    varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, suffix)
+    if(statistics_naming_prefix=="universal"){
+      varname_trend <- paste0(prefix, "_trend0_",trend_days, "_status")
+      varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days)
+    } else {
+      varname_trend <- paste0(prefix, "_trend0_",trend_days, suffix, "_status")
+      varname_days_to_double <- paste0(prefix, "_doublingdays0_",trend_days, suffix)
+    }
 
     varname_forecast <- paste0(varname_forecast_numerator, "_forecast")
   }
@@ -176,9 +190,6 @@ short_term_trend_internal <- function(
       with_pred[, (varname_forecast_prX) := NA_real_]
       with_pred[, (varname_forecast_predinterval_q02x5_prX) := NA_real_]
       with_pred[, (varname_forecast_predinterval_q97x5_prX) := NA_real_]
-
-      suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
-      suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
     }
   } else {
     if(!is.null(denominator)){
@@ -208,8 +219,6 @@ short_term_trend_internal <- function(
         with_pred[, (varname_forecast_predinterval_q97x5_prX[i]) := prX[i] * get(varname_forecast_predinterval_q97x5_numerator) / get(varname_forecast_denominator)]
         with_pred[is.nan(get(varname_forecast_predinterval_q97x5_prX[i])), (varname_forecast_predinterval_q97x5_prX[i]) := 0]
       }
-      suppressWarnings(with_pred[, (varname_forecast_predinterval_q02x5_numerator) := NULL])
-      suppressWarnings(with_pred[, (varname_forecast_predinterval_q97x5_numerator) := NULL])
     }
   }
 
@@ -240,6 +249,7 @@ short_term_trend_internal <- function(
 #' @param forecast_isoweeks Same as forecast_days, but used if granularity_geo=='isoweek'
 #' @param numerator_naming_prefix "from_numerator", "generic", or a custom prefix
 #' @param denominator_naming_prefix "from_denominator", "generic", or a custom prefix
+#' @param statistics_naming_prefix "universal" (one variable for trend status, one variable for doubling days), "from_numerator_and_prX" (If denominator is NULL, then one variable corresponding to numerator. If denominator exists, then one variable for each of the prXs)
 #' @param remove_training_data Boolean. If TRUE, removes the training data (i.e. 1:(trend_days-1) or 1:(trend_isoweeks-1)) from the returned dataset.
 #' @export
 short_term_trend <- function(
@@ -255,6 +265,7 @@ short_term_trend <- function(
   forecast_isoweeks = trend_isoweeks,
   numerator_naming_prefix = "from_numerator",
   denominator_naming_prefix = "from_denominator",
+  statistics_naming_prefix = "universal",
   remove_training_data = FALSE
 ){
   UseMethod("short_term_trend", x)
@@ -275,6 +286,7 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   forecast_isoweeks = trend_isoweeks,
   numerator_naming_prefix = "from_numerator",
   denominator_naming_prefix = "from_denominator",
+  statistics_naming_prefix = "universal",
   remove_training_data = FALSE
   ){
   if(!"time_series_id" %in% names(x)){
@@ -285,6 +297,8 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   } else {
     remove_time_series_id <- FALSE
   }
+
+  stopifnot(statistics_naming_prefix %in% c("universal", "from_numerator_and_prX"))
 
   num_unique_ts <- spltidy::unique_time_series(x, set_time_series_id = TRUE) %>%
     nrow()
@@ -306,6 +320,7 @@ short_term_trend.splfmt_rts_data_v1 <- function(
         forecast_isoweeks = forecast_isoweeks,
         numerator_naming_prefix = numerator_naming_prefix,
         denominator_naming_prefix = denominator_naming_prefix,
+        statistics_naming_prefix = statistics_naming_prefix,
         remove_training_data = remove_training_data
       )
     })
@@ -324,6 +339,7 @@ short_term_trend.splfmt_rts_data_v1 <- function(
       forecast_isoweeks = forecast_isoweeks,
       numerator_naming_prefix = numerator_naming_prefix,
       denominator_naming_prefix = denominator_naming_prefix,
+      statistics_naming_prefix = statistics_naming_prefix,
       remove_training_data = remove_training_data
     )
   }

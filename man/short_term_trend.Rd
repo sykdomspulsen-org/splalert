@@ -17,6 +17,7 @@ short_term_trend(
   forecast_isoweeks = trend_isoweeks,
   numerator_naming_prefix = "from_numerator",
   denominator_naming_prefix = "from_denominator",
+  statistics_naming_prefix = "universal",
   remove_training_data = FALSE
 )
 }
@@ -44,6 +45,8 @@ short_term_trend(
 \item{numerator_naming_prefix}{"from_numerator", "generic", or a custom prefix}
 
 \item{denominator_naming_prefix}{"from_denominator", "generic", or a custom prefix}
+
+\item{statistics_naming_prefix}{"universal" (one variable for trend status, one variable for doubling days), "from_numerator_and_prX" (If denominator is NULL, then one variable corresponding to numerator. If denominator exists, then one variable for each of the prXs)}
 
 \item{remove_training_data}{Boolean. If TRUE, removes the training data (i.e. 1:(trend_days-1) or 1:(trend_isoweeks-1)) from the returned dataset.}
 }

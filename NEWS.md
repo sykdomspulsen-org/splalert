@@ -1,3 +1,11 @@
+# splalert 2022.5.6
+
+- short_term_trend now allows for vectorized prX and statistics_naming_prefix.
+
+# splalert 2022.4.22
+
+- short_term_trend now allows for granularity_time=='isoweek' and denominators.
+
 # splalert 2022.4.21
 
 - short_term_trend created to allow for easy estimation of short-term trends (increasing/decreasing/null), doubling time in days, and short-term forecasting with prediction intervals.

@@ -2,14 +2,22 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{simulate_baseline_data}
 \alias{simulate_baseline_data}
-\title{Simulate (daily) baseline data}
+\title{simulate baseline data ----
+Simulate (daily) baseline data}
 \usage{
 simulate_baseline_data(
   start_date,
   end_date,
   seasonal_pattern_n,
   weekly_pattern_n,
-  param_list = list(alpha, beta, gamma1, gamma3, gamma4, phi, shift)
+  alpha,
+  beta,
+  gamma_1,
+  gamma_2,
+  gamma_3,
+  gamma_4,
+  phi,
+  shift_1
 )
 }
 \arguments{
@@ -18,11 +26,11 @@ Date is in the format of 'yyyy-mm-dd'.}
 
 \item{end_date}{Ending date of the simulation period.}
 
-\item{param_list}{List of parameters to control the baseline simulation.}
-
 \item{seasonal_pattern}{}
 
 \item{weekly_pattern}{}
+
+\item{param_list}{List of parameters to control the baseline simulation.}
 }
 \value{
 A splfmt_rts_data_v1, data.table containing
@@ -43,11 +51,11 @@ Simulates a time series of counts based on the Poisson/Negative Binomial model a
 start_date <- '2018-01-01'
 end_date <- '2019-12-31'
 
- baseline  <- simulate_baseline_data(
+baseline  <- simulate_baseline_data(
 start_date = as.Date("2012-01-01")
 end_date = as.Date("2019-12-31")
 seasonal_pattern_n = 1
 weekly_pattern_n = 1
-param_list = list(alpha = 3, beta = 0,gamma1 = 0.8, gamma2 = 0.6, gamma3 = 0.8, gamma4 = 0.4, phi = 4,shift = 29 )
+alpha = 3, beta = 0,gamma_1 = 0.8, gamma_2 = 0.6, gamma_3 = 0.8, gamma_4 = 0.4, phi = 4,shift_1 = 29 )
 )
 }

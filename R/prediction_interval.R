@@ -24,7 +24,8 @@ prediction_interval.glm <- function(object, newdata, alpha = 0.05, z = NULL, ske
   stopifnot(skewness_transform %in% c("none", "1/2", "2/3"))
 
 
-  pred <- predict(object, newdata, type = "response", se.fit = T)
+
+  pred <- stats::predict(object, newdata, type = "response", se.fit = T)
 
   mu0 <- pred$fit
   phi <- summary(object)$dispersion
@@ -43,7 +44,7 @@ prediction_interval.glm <- function(object, newdata, alpha = 0.05, z = NULL, ske
     stop("No proper exponent in prediction_interval.glm")
   })
 
-  if (is.null(z)) z <- qnorm(1 - alpha / 2)
+  if (is.null(z)) z <- stats::qnorm(1 - alpha / 2)
   lower <- (mu0^exponent - z * se)^(1 / exponent)
   upper <- (mu0^exponent + z * se)^(1 / exponent)
 

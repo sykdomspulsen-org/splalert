@@ -4,3 +4,4 @@ Makefile
 _pkgdown.yml
 cran-comments.md
 license.md
+dev

@@ -1,4 +1,10 @@
 gen_data_short_term_trend <- function(){
+
+  isoyear <- NULL
+  cases_n <- NULL
+  seasonweek <- NULL
+
+
   d <- spltidy::splfmt_rts_data_v1(data.table(
     location_code = "norge",
     date = do.call(c, spltime::dates_by_isoyearweek[isoyear==2020]$days),
@@ -7,7 +13,7 @@ gen_data_short_term_trend <- function(){
     border = 2020
   ))
   set.seed(4)
-  d[, cases_n := rpois(.N, lambda = seasonweek*4)]
+  d[, cases_n := stats::rpois(.N, lambda = seasonweek*4)]
   return(d)
 }
 
@@ -29,17 +35,31 @@ short_term_trend_internal <- function(
   remove_training_data = FALSE
   ){
 
+
+  to_be_forecasted <- NULL
+  trend_variable <- NULL
+
+  # check number of ts. can only process 1 for now
   num_unique_ts <- spltidy::unique_time_series(x) %>%
     nrow()
   if(num_unique_ts>1){
     stop("There is more than 1 time series in this dataset")
   }
+
+  # check granularity time. can only do day and isoweek
   gran_time <- x$granularity_time[1]
   if(!gran_time %in% c("day", "isoweek")){
     stop("granularity_time is not day or isoweek")
   }
-  # if we have weekly data, then divide everything by 7
+
+
+
+  # weekly vs daily
+  # create with_pred
+
+  # if we have weekly data, then multiply everything by 7
   if(gran_time=="isoweek"){
+    # must have more than 6 weeks data
     if(trend_isoweeks < 6){
       stop("trend_isoweeks must be >= 6 when granularity_time is isoweek")
     }
@@ -48,9 +68,13 @@ short_term_trend_internal <- function(
     forecast_rows <- forecast_isoweeks
 
     trend_days <- trend_isoweeks * 7
-
+    # ??
     with_pred <- spltidy::expand_time_to(x, max_isoyearweek = spltime::date_to_isoyearweek_c(max(x$date)+forecast_isoweeks*7))
   } else {
+
+
+
+    # daily
     if(trend_days < 14){
       stop("trend_days must be >= 14 days when granularity_time is day")
     }
@@ -61,6 +85,8 @@ short_term_trend_internal <- function(
     with_pred <- spltidy::expand_time_to(x, max_date = max(x$date)+forecast_days)
   }
 
+
+  # numerator name
   suffix <- stringr::str_extract(numerator, "_[a-z]+$")
   if(numerator_naming_prefix=="from_numerator"){
     prefix <- stringr::str_remove(numerator, "_[a-z]+$")
@@ -70,6 +96,7 @@ short_term_trend_internal <- function(
     prefix <- numerator_naming_prefix
   }
 
+  # denom
   if(denominator_naming_prefix=="from_denominator"){
     prefix_denom <- stringr::str_remove(denominator, "_[a-z]+$")
   } else if(denominator_naming_prefix=="generic") {
@@ -78,6 +105,7 @@ short_term_trend_internal <- function(
     prefix_denom <- denominator_naming_prefix
   }
 
+  # create forecast var names (num, denom)
   varname_forecast_numerator <- paste0(prefix, "_forecasted", suffix)
   varname_forecast_predinterval_q02x5_numerator <- paste0(prefix, "_forecasted_predinterval_q02x5", suffix)
   varname_forecast_predinterval_q97x5_numerator <- paste0(prefix, "_forecasted_predinterval_q97x5", suffix)
@@ -115,6 +143,7 @@ short_term_trend_internal <- function(
   }
 
 
+  # training/forecast period
   with_pred[, to_be_forecasted := FALSE]
   with_pred[(.N-remove_last_rows-forecast_rows+1):.N, to_be_forecasted := TRUE]
 
@@ -123,6 +152,9 @@ short_term_trend_internal <- function(
   with_pred[, trend_variable := 1:.N / .N]
 
   doubling_time <- rep(NA_real_, nrow(with_pred))
+
+  # trend
+  # training period
   trend <- rep(NA_character_, nrow(with_pred))
   trend[1:(trend_rows-1)] <- "training"
   trend[(length(trend)-remove_last_rows-forecast_rows+1):length(trend)] <- "forecast"
@@ -139,6 +171,7 @@ short_term_trend_internal <- function(
 
     formula <- glue::glue("{varname_forecast_numerator} ~ trend_variable")
 
+    # model for data with denom
     model_denominator <- NULL
     if(!is.null(denominator)){
       # if denominator is zero, replace with 1
@@ -146,19 +179,28 @@ short_term_trend_internal <- function(
 
       formula_denominator <- glue::glue("{varname_forecast_denominator} ~ trend_variable")
       tryCatch({
-        model_denominator <- glm2::glm2(as.formula(formula_denominator), data = training_data, family = stats::quasipoisson(link = "log"))
+        # qp model
+        model_denominator <- glm2::glm2(stats::as.formula(formula_denominator),
+                                        data = training_data,
+                                        family = stats::quasipoisson(link = "log"))
       },
       error = function(e){
         model_denominator <- NULL
       })
+
+
       formula <- glue::glue("{formula} + offset(log({varname_forecast_denominator}))")
     }
 
+    # model for data with num only
     model <- NULL
     tryCatch({
-      model <- glm2::glm2(as.formula(formula), data = training_data, family = stats::quasipoisson(link = "log"))
+      model <- glm2::glm2(stats::as.formula(formula),
+                          data = training_data,
+                          family = stats::quasipoisson(link = "log"))
 
-      vals <- coef(summary(model))
+      # determine the trend based on beta
+      vals <- stats::coef(summary(model))
       co <- vals["trend_variable", "Estimate"]
       pval <- vals["trend_variable",][[4]]
       if(pval > 0.05){
@@ -180,6 +222,9 @@ short_term_trend_internal <- function(
     )
   }
   trend <- factor(trend, levels = c("training", "forecast", "decreasing", "null", "increasing"))
+
+
+  # prediction interval
   if(is.null(model) | (!is.null(denominator) & is.null(model_denominator))){
     suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_denominator) := NA_real_])
     suppressWarnings(with_pred[to_be_forecasted==TRUE, (varname_forecast_numerator) := NA_real_])
@@ -289,6 +334,11 @@ short_term_trend.splfmt_rts_data_v1 <- function(
   statistics_naming_prefix = "universal",
   remove_training_data = FALSE
   ){
+
+  time_series_id <- NULL
+  to_be_forecasted <- NULL
+
+
   if(!"time_series_id" %in% names(x)){
     on.exit({
       x[, time_series_id := NULL]

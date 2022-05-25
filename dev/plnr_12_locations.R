@@ -16,42 +16,38 @@ p <- plnr::Plan$new()
 # add data ----
 # We can add data directly
 p$add_data(
-  name = "deaths",
-  direct = data.table(deaths=1:4, year=2001:2004)
+  name = "cases",
+  direct = spltidy::covid19_msis_cases_by_time_location
 )
 
 p$get_data()
-p$get_data()$deaths  # this is the deaths data
 
-# print hash
-# current
-# current elements
-p$get_data()$hash
+fn_test <- function(data, argset){
+  if(plnr::is_run_directly()){
+    data <- p$get_data()
+    argset <- p$get_argset(1)
+  }
 
+  d <- data$cases[location_code==argset$location_code]
 
-
-# add analysis ----
-# We can then add a simple analysis that returns a figure:
-
-# To do this, we first need to create an analysis function
-# (takes two arguments -- data and argset)
-
-# fn_analysis <- function(data, argset){
-#   # data <- p$get_data()
-#   # argset <- p$get_argset("fig_1_2002)
-#
-#   # function continues here
-# }
-
-fn_fig_1 <- function(data, argset){
-  plot_data <- data$deaths[year<= argset$year_max]
-
-  q <- ggplot(plot_data, aes(x=year, y=deaths))
-  q <- q + geom_line()
-  q <- q + geom_point(size=3)
-  q <- q + labs(title = glue::glue("Deaths from 2001 until {argset$year_max}"))
-  q
+  return(5)
 }
+
+# EQUIVALENT TO add analysis by df/list?
+for(i in spldata::norway_locations_names()[granularity_geo %in% c("nation", "county")]$location_code){
+  force(i)
+  p$add_analysis(
+    name = i,
+    fn = fn_test,
+    location_code = i
+  )
+}
+
+p$analyses
+(x <- p$run_one(2))
+(x <- p$run_all())
+
+
 
 
 # We can then add the analysis (function + argset) to the plan

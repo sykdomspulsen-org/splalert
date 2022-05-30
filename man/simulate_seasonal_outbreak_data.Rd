@@ -2,15 +2,17 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{simulate_seasonal_outbreak_data}
 \alias{simulate_seasonal_outbreak_data}
-\title{Simulate seasonal outbreak data ----
-Simulate (daily) seasonal outbreak data}
+\title{Simulate seasonal outbreaks ----
+Simulation of seasonal outbreaks for time series with seasonal patterns. THe seasonal aoutbreak are simulated in baseline weeks.
+The start, the end and peak of seosonal pattern provided.
+Seannoal outbreak are drawn from weeks between start and the end of the seasonal with higher probability around the peak weeks and  patterns Each aoubreak sta}
 \usage{
 simulate_seasonal_outbreak_data(
   data,
   week_season_start = 40,
   week_season_peak = 4,
   week_season_end = 20,
-  n_season_outbreak = 2,
+  n_season_outbreak = 1,
   m
 )
 }
@@ -32,8 +34,10 @@ A splfmt_rts_data_v1, data.table containing
 }
 }
 \description{
-Simulate seasonal outbreak data ----
-Simulate (daily) seasonal outbreak data
+Simulate seasonal outbreaks ----
+Simulation of seasonal outbreaks for time series with seasonal patterns. THe seasonal aoutbreak are simulated in baseline weeks.
+The start, the end and peak of seosonal pattern provided.
+Seannoal outbreak are drawn from weeks between start and the end of the seasonal with higher probability around the peak weeks and  patterns Each aoubreak sta
 }
 \details{
 

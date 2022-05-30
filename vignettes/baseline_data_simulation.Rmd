@@ -34,20 +34,36 @@ baseline_1  <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 6, beta = 0, gamma1 = 0.2, gamma2 = 0.2, gamma3 = 0.5, gamma4 = 0.4, phi = 2, shift = 29 )
+                                    alpha = 6, 
+                                    beta = 0, 
+                                    gamma_1 = 0.2, 
+                                    gamma_2 = 0.2, 
+                                    gamma_3 = 0.5, 
+                                    gamma_4 = 0.4, 
+                                    phi = 2, 
+                                    shift = 29 
+                                  )
 
-)
+
 
 baseline_1[,s:=1]
+
 ## sim 2
 baseline_2  <- simulate_baseline_data(
                                     start_date = as.Date("2012-01-01"),
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 0.5, beta = 0, gamma1 = 1.5, gamma2 = 1.4, gamma3 = 0.5, gamma4 = 0.4, phi = 1, shift = -167 )
+                                    alpha = 0.5, 
+                                    beta = 0, 
+                                    gamma_1 = 1.5, 
+                                    gamma_2 = 1.4, 
+                                    gamma_3 = 0.5, 
+                                    gamma_4 = 0.4, 
+                                    phi = 1, 
+                                    shift = -167 
+                                  )
 
-)
 
 baseline_2[,s:=2]
 
@@ -58,9 +74,15 @@ baseline_3  <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 0,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 5.5, beta = 0, gamma1 = 0, gamma2 = 0, gamma3 = 0.3, gamma4 = 0.25, phi = 1, shift = 1 )
-
-)
+                                    alpha = 5.5, 
+                                    beta = 0, 
+                                    gamma_1 = 0, 
+                                    gamma_2 = 0, 
+                                    gamma_3 = 0.3, 
+                                    gamma_4 = 0.25, 
+                                    phi = 1, 
+                                    shift = 1
+                                  )
 
 baseline_3[,s:=3]
 
@@ -71,9 +93,15 @@ baseline_4 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 0,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 0, beta = 0, gamma1 = 0, gamma2 = 0, gamma3 = 0.3, gamma4 = 0.25, phi = 1, shift = 1 )
-
-)
+                                    alpha = 0, 
+                                    beta = 0, 
+                                    gamma_1 = 0, 
+                                    gamma_2 = 0, 
+                                    gamma_3 = 0.3,
+                                    gamma_4 = 0.25, 
+                                    phi = 1, 
+                                    shift = 1
+                                  )
 
 baseline_4[,s:=4]
 
@@ -83,10 +111,15 @@ baseline_5 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 6, beta = 0, gamma1 = 0.3, gamma2 = 2, gamma3 = 0.3, gamma4 = 0.5, phi = 1.5, shift = -50 )
-
-)
-
+                                    alpha = 6, 
+                                    beta = 0, 
+                                    gamma_1 = 0.3, 
+                                    gamma_2 = 2, 
+                                    gamma_3 = 0.3, 
+                                    gamma_4 = 0.5, 
+                                    phi = 1.5, 
+                                    shift = -50 
+                                  )
 
 baseline_5[,s:=5]
 
@@ -97,9 +130,16 @@ baseline_6 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 1, beta = 0, gamma1 = 0.1, gamma2 = 2, gamma3 = 0.05, gamma4 = 0.05, phi = 1, shift = -50 )
+                                    alpha = 1, 
+                                    beta = 0, 
+                                    gamma_1 = 0.1, 
+                                    gamma_2 = 2, 
+                                    gamma_3 = 0.05, 
+                                    gamma_4 = 0.05, 
+                                    phi = 1, 
+                                    shift = -50 
+                                  )
 
-)
 baseline_6[,s:=6]
 
 
@@ -109,9 +149,17 @@ baseline_7 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 0,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 6, beta = 0.0001, gamma1 = 0, gamma2 = 0, gamma3 = 0.6, gamma4 = 0.9, phi = 1.5, shift = 0 )
+                                    alpha = 6, 
+                                    beta = 0.0001, 
+                                    gamma_1 = 0, 
+                                    gamma_2 = 0, 
+                                    gamma_3 = 0.6, 
+                                    gamma_4 = 0.9, 
+                                    phi = 1.5, 
+                                    shift = 0 
+                                  )
 
-)
+
 baseline_7[,s:=7]
 
 ## sim 8
@@ -120,9 +168,17 @@ baseline_8 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 3, beta = 0, gamma1 = 1.5, gamma2 = 0.1, gamma3 = 0.2, gamma4 = 0.3, phi = 1, shift = -150 )
+                                    alpha = 3, 
+                                    beta = 0, 
+                                    gamma_1 = 1.5,
+                                    gamma_2 = 0.1, 
+                                    gamma_3 = 0.2, 
+                                    gamma_4 = 0.3, 
+                                    phi = 1, 
+                                    shift = -150 )
 
-)
+
+
 baseline_8[,s:=8]
 
 ## sim 9
@@ -131,9 +187,16 @@ baseline_9 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 3, beta = 0, gamma1 = 0.2, gamma2 = 0.1, gamma3 = 0.05, gamma4 = 0.15, phi = 1, shift = -200 )
+                                    alpha = 3, 
+                                    beta = 0, 
+                                    gamma_1 = 0.2, 
+                                    gamma_2 = 0.1, 
+                                    gamma_3 = 0.05, 
+                                    gamma_4 = 0.15, 
+                                    phi = 1, 
+                                    shift = -200 
+                                  )
 
-)
 baseline_9[,s:=9]
 
 ## sim 10
@@ -143,9 +206,17 @@ baseline_10 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 5, beta = 0, gamma1 = 0.2, gamma2 = 0.1, gamma3 = 0.05, gamma4 = 0.1, phi = 1, shift = 0 )
+                                    alpha = 5, 
+                                    beta = 0, 
+                                    gamma_1 = 0.2, 
+                                    gamma_2 = 0.1, 
+                                    gamma_3 = 0.05, 
+                                    gamma_4 = 0.1, 
+                                    phi = 1, 
+                                    shift = 0 
+                                  )
 
-)
+
 baseline_10[,s:=10]
 
 ## sim 11
@@ -155,9 +226,16 @@ baseline_11 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 2,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 0.5, beta = 0, gamma1 = 0.4, gamma2 = 0, gamma3 = 0.05, gamma4 = 0.15, phi = 1, shift = 0 )
+                                    alpha = 0.5, 
+                                    beta = 0, 
+                                    gamma_1 = 0.4, 
+                                    gamma_2 = 0, 
+                                    gamma_3 = 0.05, 
+                                    gamma_4 = 0.15, 
+                                    phi = 1, 
+                                    shift = 0 
+                                  )
 
-)
 baseline_11[,s:=11]
 
 ## sim 12
@@ -167,9 +245,17 @@ baseline_12 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 2,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 9, beta = 0, gamma1 = 0.5, gamma2 = 0.2, gamma3 = 0.2, gamma4 = 0.4, phi = 4, shift = 57 )
+                                    alpha = 9, 
+                                    beta = 0, 
+                                    gamma_1 = 0.5, 
+                                    gamma_2 = 0.2, 
+                                    gamma_3 = 0.2, 
+                                    gamma_4 = 0.4, 
+                                    phi = 4, 
+                                    shift = 57
+                                  )
 
-)
+
 baseline_12[,s:=12]
 
 
@@ -180,9 +266,15 @@ baseline_13 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 2,
                                     weekly_pattern_n = 1,
-                                    baseline_param_list = list(alpha = 2, beta = 0.0005, gamma1 = 0.8, gamma2 = 0.8, gamma3 = 0.8, gamma4 = 0.4, phi = 4, shift = 57 )
-
-)
+                                    alpha = 2,
+                                    beta = 0.0005, 
+                                    gamma_1 = 0.8, 
+                                    gamma_2 = 0.8, 
+                                    gamma_3 = 0.8, 
+                                    gamma_4 = 0.4, 
+                                    phi = 4, 
+                                    shift = 57 
+                                  )
 
 baseline_13[,s:=13]
 
@@ -194,9 +286,16 @@ baseline_14 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 4,
-                                    baseline_param_list = list(alpha = 0.05, beta = 0, gamma1 = 0.01, gamma2 = 0.01, gamma3 = 1.8, gamma4 = 0.1, phi = 1, shift = -85 )
+                                    alpha = 0.05, 
+                                    beta = 0, 
+                                    gamma_1 = 0.01, 
+                                    gamma_2 = 0.01, 
+                                    gamma_3 = 1.8, 
+                                    gamma_4 = 0.1, 
+                                    phi = 1, 
+                                    shift = -85 
+                                  )
 
-)
 baseline_14[,s:=14]
 
 ## sim 15
@@ -206,7 +305,15 @@ baseline_15 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 1,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 3, beta = 0, gamma1 = 0.8, gamma2 = 0.6, gamma3 = 0.8, gamma4 = 0.4, phi = 4, shift = 29))
+                                    alpha = 3, 
+                                    beta = 0, 
+                                    gamma_1 = 0.8, 
+                                    gamma_2 = 0.6, 
+                                    gamma_3 = 0.8, 
+                                    gamma_4 = 0.4, 
+                                    phi = 4, 
+                                    shift = 29)
+
 baseline_15[,s:=15]
 
 
@@ -217,8 +324,16 @@ baseline_16 <- simulate_baseline_data(
                                     end_date = as.Date("2019-12-31"),
                                     seasonal_pattern_n = 0,
                                     weekly_pattern_n = 2,
-                                    baseline_param_list = list(alpha = 6, beta = 0, gamma1 = 0, gamma2 = 0, gamma3 = 0.8, gamma4 = 0.4, phi = 4, shift = 1 )
-                                   )
+                                    alpha = 6, 
+                                    beta = 0, 
+                                    gamma_1 = 0, 
+                                    gamma_2 = 0, 
+                                    gamma_3 = 0.8, 
+                                    gamma_4 = 0.4, 
+                                    phi = 4, 
+                                    shift = 1
+                                  )
+                                   
 
 baseline_16[,s:=16]
 
@@ -241,40 +356,6 @@ baseline <- rbind(baseline_1,
 
 
 
-q <- ggplot(baseline, aes(x = date, y = n_tot))
-q <- q + geom_line(lwd = 1)
-q <- q + facet_wrap(~s, scales = "free")
-q <- q + splstyle::scale_fill_fhi(palette = "contrast")
-q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
-q
-
-
-q <- ggplot(baseline, aes(wday, n_tot, group=wday))
-q <- q + facet_wrap(~s, scales = "free")
-q <- q + geom_boxplot()
-q
-
-q <- ggplot(baseline, aes(wday, n_tot, group=calmonth))
-q <- q + facet_wrap(~s, scales = "free")
-q <- q + geom_boxplot()
-q
-
-```
-
-
-## Add seasonal outbreak 
-
-```{r}
-
-
-baseline <- simulate_baseline_data(
-                                    start_date = as.Date("2012-01-01"),
-                                    end_date = as.Date("2019-12-31"),
-                                    seasonal_pattern_n = 1,
-                                    weekly_pattern_n = 2,
-                                    alpha = 3, beta = 0, gamma_1 = 0.8, gamma_2 = 0.6, gamma_3 = 0.8, gamma_4 = 0.4, phi = 2, shift_1 = 6)
-baseline[,s:=15]
-
 q <- ggplot(baseline, aes(x = date, y = n))
 q <- q + geom_line(lwd = 1)
 q <- q + facet_wrap(~s, scales = "free")
@@ -293,12 +374,61 @@ q <- q + facet_wrap(~s, scales = "free")
 q <- q + geom_boxplot()
 q
 
+```
+
+
+## Simulation of baseline data 
+
+```{r}
+
+
+baseline <- simulate_baseline_data( 
+                                    start_date = as.Date("2012-01-01"),
+                                    end_date = as.Date("2019-12-31"),
+                                    seasonal_pattern_n = 1,
+                                    weekly_pattern_n = 2,
+                                    alpha = 3, 
+                                    beta = 0, 
+                                    gamma_1 = 0.8, 
+                                    gamma_2 = 0.6, 
+                                    gamma_3 = 0.8, 
+                                    gamma_4 = 0.4, 
+                                    phi = 2, 
+                                    shift_1 = 6
+                                  )
+baseline[,s:=15]
+
+q <- ggplot(baseline, aes(x = date, y = n))
+q <- q + geom_line(lwd = 1)
+q <- q + facet_wrap(~s, scales = "free")
+q <- q + splstyle::scale_fill_fhi(palette = "contrast")
+q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
+q
+
+
+# q <- ggplot(baseline, aes(wday, n, group=wday))
+# q <- q + facet_wrap(~s, scales = "free")
+# q <- q + geom_boxplot()
+# q
+# 
+# q <- ggplot(baseline, aes(wday, n, group=calmonth))
+# q <- q + facet_wrap(~s, scales = "free")
+# q <- q + geom_boxplot()
+# q
+
+```
+
+## Add seasonal outbreaks 
+
+```{r}
+
+
 baseline_with_seasonal <- simulate_seasonal_outbreak_data (baseline,
-                                             week_season_start = 40,
-                                             week_season_peak = 4,
-                                             week_season_end = 20,
-                                             n_season_outbreak = 1,
-                                             m = 15)
+                                                           week_season_start = 40,
+                                                           week_season_peak = 4,
+                                                           week_season_end = 20,
+                                                           n_season_outbreak = 1,
+                                                           m = 150)
 
 
 
@@ -319,8 +449,8 @@ q
 
 ```{r}
 baseline_with_seasonal_spike  <- simulate_spike_outbreak_data(baseline_with_seasonal,
-                                                      n_sp_outbreak=1,
-                                                      m = 15)
+                                                              n_sp_outbreak=1,
+                                                              m = 15)
                                                       
 
 q <- ggplot(baseline_with_seasonal_spike, aes(x = date, y = n))
@@ -341,7 +471,7 @@ q
 
 baseline_with_seasonal_spike_holiday  <- add_holiday_effect( baseline_with_seasonal_spike,
                                                               holiday_data= fhidata::norway_dates_holidays,
-                                                              holiday_effect=2)
+                                                              holiday_effect=0.5)
 
 test <- baseline_with_seasonal_spike_holiday[isoyear %in% 2019]
 

@@ -2,8 +2,8 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{simulate_baseline_data}
 \alias{simulate_baseline_data}
-\title{simulate baseline data ----
-Simulate (daily) baseline data}
+\title{Simulate baseline data ----
+Simulation of baseline data.}
 \usage{
 simulate_baseline_data(
   start_date,
@@ -24,38 +24,51 @@ simulate_baseline_data(
 \item{start_date}{Starting date of the simulation period.
 Date is in the format of 'yyyy-mm-dd'.}
 
-\item{end_date}{Ending date of the simulation period.}
+\item{end_date}{Ending date of the simulation period.
+Date is in the format of 'yyyy-mm-dd'.}
 
-\item{seasonal_pattern}{}
+\item{seasonal_pattern_n}{Number of seasonal patterns. For no seasonal pattern seasonal_pattern_n = 0. Seasonal_pattern_n = 1 represents annual pattern and seasonal_pattern_n = 2 indicates biannual pattern.}
 
-\item{weekly_pattern}{}
+\item{weekly_pattern_n}{Number of weekly patterns. For no specific weekly pattern, weekly_pattern_n = 0. Weekly_pattern_n = 1 represents one weekly peak.}
 
-\item{param_list}{List of parameters to control the baseline simulation.}
+\item{beta}{Linear trend}
+
+\item{gamma_1}{@param gamma_2 Seasonal trend}
+
+\item{gamma_3}{@param gamma_4 Day-of-the week trend}
+
+\item{phi}{Dispersion parameter. If phi =0, a Poisson model is used to simulate baseline data}
+
+\item{shift_1}{Horizontal shift parameter to help control over week/month peaks.}
 }
 \value{
-A splfmt_rts_data_v1, data.table containing
+A splfmt_rts_data_v1, data.table containing a time series of counts
 
 \describe{
-  \item{granularity_time}{Pseudo ID for death events.}
-  \item{granularity_geo}{Pseudo ID for death events.}
-  \item{wday}{Pseudo ID for death events.}
+  \item{wday}{day-of-the week}
+  \item{n}{cases}
 }
 }
 \description{
-Simulates a time series of counts based on the Poisson/Negative Binomial model as described in Noufaily et al. (2019)
+Simulates a time series of counts in the absence of outbreaks. Simulation is based on a Poisson/Negative Binomial model as described in Noufaily et al. (2019).
+The funtion allowes to simulate properties of different syndromes/diasess, such as number of caess, tren, seaonality and weekly pattern.
 }
 \details{
 
 }
 \examples{
-start_date <- '2018-01-01'
-end_date <- '2019-12-31'
-
 baseline  <- simulate_baseline_data(
 start_date = as.Date("2012-01-01")
 end_date = as.Date("2019-12-31")
 seasonal_pattern_n = 1
 weekly_pattern_n = 1
-alpha = 3, beta = 0,gamma_1 = 0.8, gamma_2 = 0.6, gamma_3 = 0.8, gamma_4 = 0.4, phi = 4,shift_1 = 29 )
+alpha = 3,
+beta = 0,
+gamma_1 = 0.8,
+gamma_2 = 0.6,
+gamma_3 = 0.8,
+gamma_4 = 0.4,
+phi = 4,
+shift_1 = 29 )
 )
 }

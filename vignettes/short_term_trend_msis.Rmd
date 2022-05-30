@@ -1,0 +1,79 @@
+---
+title: "Short term trend: MSIS cases"
+author: "Chi Zhang"
+date: "2022-05-30"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Short term trend: MSIS cases}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+
+In this vignette we illustrate how to compute short term trend with `splalert::short_term_trend`.
+
+
+```{r}
+library(ggplot2)
+library(data.table)
+library(magrittr)
+```
+
+## Covid-19 MSIS cases
+
+The Covid-19 XXXXXXXXXXX  for Norway. The data does not distinguish age groups or sex. 
+
+This dataset is extracted on 2022-05-04. The time period is from 2020-02-21 to 2022-05-03. 
+
+The data in csv and xlsx formats can be found on our [Github repository](https://github.com/folkehelseinstituttet/surveillance_data). 
+
+
+### Data in `spltidy` format
+
+We have prepared the data into [spltidy format](https://docs.sykdomspulsen.no/spltidy/articles/splfmt_rts_data_v1.html), from which we can see the summary of each column, such as data type and amount of missing data. 
+
+```{r}
+d_msis <- spltidy::covid19_msis_cases_by_time_location
+# check the column names
+colnames(d_msis)  
+```
+
+
+
+### Understand the data
+
+(granularity geo and location codes)
+
+
+(one visualization of counts for each county)
+
+(another visualization of pr, including the nation)
+
+
+
+
+
+
+## 1. weekly trend 
+(maybe not the whole period, only visualise one year)
+
+(nation, each county)
+
+
+
+
+
+## 2. Trend of last week in map 
+
+
+
+
+
+

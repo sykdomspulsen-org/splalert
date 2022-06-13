@@ -244,8 +244,8 @@ trend_msis_norge[, covid19_cases_testdate_trend0_42_status := factor(
 
 # plot
 q <- ggplot(trend_msis_norge, aes(x = isoyearweek,
-                            y = covid19_cases_testdate_forecasted_n,
-                            group = 1))
+                                  y = covid19_cases_testdate_forecasted_n,
+                                  group = 1))
 q <- q + geom_col(mapping = aes(fill = covid19_cases_testdate_trend0_42_status ))
 q <- q + geom_errorbar(
   mapping = aes(

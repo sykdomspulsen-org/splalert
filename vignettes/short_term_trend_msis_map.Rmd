@@ -167,6 +167,11 @@ d_msis_this_isoyearweek <- res_unlisted[granularity_geo == 'county' &
                                      covid19_cases_testdate_trend0_42_status)]
 
 
+d_msis_this_isoyearweek[, trend := factor(
+  covid19_cases_testdate_trend0_42_status,
+  levels = c('decreasing','null', 'increasing')
+)]
+
 ```
 
 
@@ -174,12 +179,6 @@ Now we make a map
 
 ```{r}
 pd <- copy(splmaps::nor_nuts3_map_b2020_insert_oslo_dt)
-
-d_msis_this_isoyearweek[, trend := factor(
-  covid19_cases_testdate_trend0_42_status,
-  levels = c('decreasing','null', 'increasing')
-)]
-
 
 
 # join the map data.table
@@ -196,8 +195,11 @@ q <- q + geom_polygon(
 q <- q + coord_quickmap()
 q <- q + theme_void()
 q <- q + labs(title=glue::glue("MSIS cases per 100k population for week ", this_isoyearweek))
-q <- q + splstyle::scale_fill_fhi("Category",palette = "map_seq_complete", direction = 1, drop=F)
-q <- q + labs(caption = "Data updated 2021 week 44. Demonstration only")
+q <- q + splstyle::scale_fill_fhi("Trend",palette = "warning", direction = 1, drop=F)
+
+# include date
+date_update <- as.character(unique(d_msis_this_isoyearweek$date))
+q <- q + labs(caption = glue::glue("Date updated ", date_update))
 
 # add watermark later!
 q
@@ -226,7 +228,7 @@ labels[, cases_100k := splstyle::format_nor_num_0(cases_100k)]
 labels
 
 # put case 100k together with county name
-labels[, label := paste0(location_name, '\n', cases_100k)]
+labels[, label := paste0(location_name, '\n', cases_100k, '/100k')]
 
 q <- q + ggrepel::geom_label_repel(
   data = labels,

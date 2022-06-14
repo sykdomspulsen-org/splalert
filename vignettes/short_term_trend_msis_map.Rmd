@@ -22,7 +22,6 @@ In this vignette we illustrate how to compute short term trend with `splalert::s
 library(ggplot2)
 library(data.table)
 library(magrittr)
-library(splmaps)
 ```
 
 ## Covid-19 MSIS cases

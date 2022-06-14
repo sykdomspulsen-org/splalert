@@ -1,10 +1,10 @@
 ---
-title: "Short term trend for COVID cases Part 2: map"
+title: "Short term trend for COVID cases Part 2 map"
 author: "Chi Zhang"
 date: "2022-05-30"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Short term trend for COVID cases Part 2: map}
+  %\VignetteIndexEntry{Short term trend for COVID cases Part 2 map}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

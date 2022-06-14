@@ -27,6 +27,10 @@ Suggests: testthat,
     rmarkdown,
     rstudioapi,
     glue,
-    splstyle
+    splstyle,
+    spldata,
+    splmaps,
+    ggrepel,
+    plnr
 RoxygenNote: 7.1.2
 VignetteBuilder: knitr

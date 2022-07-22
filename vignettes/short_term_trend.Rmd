@@ -1,6 +1,6 @@
 ---
 title: "Short term trend"
-author: "Richard Aubrey White"
+author: "Richard Aubrey White, Chi Zhang"
 date: "2022-05-05"
 output: rmarkdown::html_vignette
 vignette: >
@@ -16,30 +16,83 @@ knitr::opts_chunk$set(
 )
 ```
 
+
+In this vignette we illustrate how to compute short term trend with `splalert::short_term_trend`. The data we use is the Covid-19 hospitalization in Norway. 
+
+
 ```{r}
 library(ggplot2)
 library(data.table)
 library(magrittr)
 ```
 
-## Covid-19 Hospitalizations
+## Covid-19 Hospitalization data
 
-Weekly observations
+The Covid-19 hospitalization data contains both daily and weekly aggregated number of hospitalization due to Covid (as a main cause) for Norway. The data does not distinguish age groups or sex. 
+
+This dataset is extracted on 2022-05-04. The time period is from 2020-02-21 to 2022-05-03. 
+
+The data in csv and xlsx formats can be found on our [Github repository](https://github.com/folkehelseinstituttet/surveillance_data). 
+
+
+### Data in `spltidy` format
+
+We have prepared the data into [spltidy format](https://docs.sykdomspulsen.no/spltidy/articles/splfmt_rts_data_v1.html), from which we can see the summary of each column, such as data type and amount of missing data. 
 
 ```{r}
+d_hosp <- spltidy::norway_covid19_icu_and_hospitalization
+# check the column names
+colnames(d_hosp)  
+
+d_hosp
+```
+
+
+
+
+
+
+
+
+
+## Weekly observations
+
+Now we run the `short_term_trend` function on weekly data. 
+
+```{r}
+d_hosp_weekly <- d_hosp[granularity_time=="isoweek"]
+
+
 res <- splalert::short_term_trend(
-  spltidy::norway_covid19_icu_and_hospitalization[granularity_time=="isoweek"], 
+  d_hosp_weekly, 
   numerator = "hospitalization_with_covid19_as_primary_cause_n",
   trend_isoweeks = 6,
   remove_last_isoweeks = 1
 )
+
+# create the trend label
 res[, hospitalization_with_covid19_as_primary_cause_trend0_42_status := factor(
   hospitalization_with_covid19_as_primary_cause_trend0_42_status,
   levels = c("training","forecast","decreasing", "null", "increasing"),
   labels = c("Training","Forecast","Decreasing", "Null", "Increasing")
 )]
-res[80]
 
+colnames(res)
+```
+
+
+We can check some columns that have been added to the original data. 
+```{r}
+# check some columns 
+res[, .(date, 
+        hospitalization_with_covid19_as_primary_cause_n, 
+        hospitalization_with_covid19_as_primary_cause_forecasted_n,         hospitalization_with_covid19_as_primary_cause_trend0_42_status)]
+```
+
+We can visualize the trend indicator with different colors. We use [splstyle](https://docs.sykdomspulsen.no/splstyle/) customized ggplot2 syntax for standardized graphic styles. 
+
+
+```{r}
 q <- ggplot(res, aes(x = isoyearweek, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, group = 1))
 q <- q + geom_col(mapping = aes(fill = hospitalization_with_covid19_as_primary_cause_trend0_42_status ))
 q <- q + geom_errorbar(
@@ -57,11 +110,20 @@ q <- q + splstyle::set_x_axis_vertical()
 q
 ```
 
-Daily observations
+
+
+
+
+
+## Daily observations
+
+Similarly, we can also do the analysis using daily data.
 
 ```{r}
+d_hosp_daily <- d_hosp[granularity_time=="day"]
+
 res <- splalert::short_term_trend(
-  spltidy::norway_covid19_icu_and_hospitalization[granularity_time=="day"], 
+  d_hosp_daily, 
   numerator = "hospitalization_with_covid19_as_primary_cause_n",
   trend_days = 28,
   remove_last_days = 7
@@ -71,8 +133,12 @@ res[, hospitalization_with_covid19_as_primary_cause_trend0_28_status := factor(
   levels = c("training","forecast","decreasing", "null", "increasing"),
   labels = c("Training","Forecast","Decreasing", "Null", "Increasing")
 )]
-res[80]
 
+```
+
+
+We can also visualize this trend figure.
+```{r}
 q <- ggplot(data = res, mapping = aes(x = date, y = hospitalization_with_covid19_as_primary_cause_forecasted_n, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_status))
 q <- q + geom_col(alpha = 0) # necessary to get legend to be in right order
 q <- q + geom_col(
@@ -86,8 +152,21 @@ q <- q + geom_ribbon(
   ),
   alpha = 0.75
 )
-q
+q <- q + scale_y_continuous("Daily hospitalization with Covid-19 as primary cause", expand = c(0, 0.1))
+q <- q + scale_x_date("Date", date_breaks = "28 days", date_labels = "%y-%m-%d")
+# q <- q + scale_x_discrete(breaks = splstyle::every_nth(8))
+q <- q + expand_limits(y=0)
 
+q <- q + splstyle::scale_fill_fhi("28 days trend", palette = "contrast")
+q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
+q <- q + splstyle::set_x_axis_vertical()
+q
+```
+
+
+Another way to visualize trend
+
+```{r}
 q <- ggplot(res, aes(x = date, y = hospitalization_with_covid19_as_primary_cause_doublingdays0_28))
 q <- q + geom_rect(aes(xmin = date-1, xmax=date, ymin = 1, ymax = Inf, fill = hospitalization_with_covid19_as_primary_cause_trend0_28_status), alpha = 0.5)
 q <- q + geom_line(lwd = 1)

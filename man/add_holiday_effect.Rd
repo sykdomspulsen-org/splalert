@@ -2,32 +2,28 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{add_holiday_effect}
 \alias{add_holiday_effect}
-\title{add holiday effect ----
-add holiday efect to baseline data}
+\title{Holiday effect ----
+The effect of public holiday on a time series of daily counts}
 \usage{
 add_holiday_effect(data, holiday_data, holiday_effect = 2)
 }
 \arguments{
-\item{splfmt_rds_data}{Simulated or real data}
+\item{data}{A splfmt_rds data object}
 
-\item{start_date}{Starting date simulated outbreak.
-Date is in the format of 'yyyy-mm-dd'.}
+\item{holiday_data}{dates}
 
-\item{numoutbk}{Ending date of the simulation period.}
+\item{holiday_effect}{Ending date of the simulation period.}
 }
 \value{
 A splfmt_rts_data_v1, data.table containing
-
-\describe{
-  \item{granularity_time}{Pseudo ID for death events.}
-  \item{granularity_geo}{Pseudo ID for death events.}
-  \item{wday}{Pseudo ID for death events.}
-}
 }
 \description{
-add holiday effect ----
-add holiday efect to baseline data
+Holiday effect ----
+The effect of public holiday on a time series of daily counts
 }
 \details{
 
+}
+\examples{
+holiday_data <- fhidata::norway_dates_holidays
 }

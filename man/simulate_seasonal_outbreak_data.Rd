@@ -3,9 +3,12 @@
 \name{simulate_seasonal_outbreak_data}
 \alias{simulate_seasonal_outbreak_data}
 \title{Simulate seasonal outbreaks ----
-Simulation of seasonal outbreaks for time series with seasonal patterns. THe seasonal aoutbreak are simulated in baseline weeks.
-The start, the end and peak of seosonal pattern provided.
-Seannoal outbreak are drawn from weeks between start and the end of the seasonal with higher probability around the peak weeks and  patterns Each aoubreak sta}
+Simulation of seasonal outbreaks for syndromes/diseases that follows seasonal trends.
+Seasonal outbreaks are more variable both in size and timing than regular seasonal patterns.
+The number of seasonal outbreaks occur in a year are defined by n_season_outbreak.
+The parameters week_season_start and week_season_end define the season window.
+The start of the seasonal outbreak is drawn from the season window weeks, with higher probability of outbreak occurs around the peak of the season (week_season_peak).
+The seasonal outbreak size (excess number of cases that occurs during the outbreak) is simulated using a poisson distribution as described in Noufaily et al. (2019).}
 \usage{
 simulate_seasonal_outbreak_data(
   data,
@@ -17,41 +20,27 @@ simulate_seasonal_outbreak_data(
 )
 }
 \arguments{
-\item{splfmt_rds_data}{Simulated or real data}
+\item{data}{A splfmt_rds data object}
 
-\item{start_date}{Starting date simulated outbreak.
-Date is in the format of 'yyyy-mm-dd'.}
+\item{week_season_start}{Starting season week number}
 
-\item{numoutbk}{Ending date of the simulation period.}
+\item{week_season_peak}{Peak of the season week number}
+
+\item{week_season_end}{Ending season week number}
+
+\item{n_season_outbreak}{Number of seasonal outbreaks to be simulated}
+
+\item{m}{Parameter to determine the size of the outbreak (m times the standard deviation of the baseline count at the starting day of the seasonal outbreak)}
 }
 \value{
-A splfmt_rts_data_v1, data.table containing
-
-\describe{
-  \item{granularity_time}{Pseudo ID for death events.}
-  \item{granularity_geo}{Pseudo ID for death events.}
-  \item{wday}{Pseudo ID for death events.}
-}
+A splfmt_rts_data_v1, data.table
 }
 \description{
 Simulate seasonal outbreaks ----
-Simulation of seasonal outbreaks for time series with seasonal patterns. THe seasonal aoutbreak are simulated in baseline weeks.
-The start, the end and peak of seosonal pattern provided.
-Seannoal outbreak are drawn from weeks between start and the end of the seasonal with higher probability around the peak weeks and  patterns Each aoubreak sta
-}
-\details{
-
-}
-\examples{
-start_date <- '2018-01-01'
-end_date <- '2019-12-31'
-
-baseline  <- simulate_baseline_data(
- start_date = as.Date("2012-01-01")
- end_date = as.Date("2019-12-31")
- seasonal_pattern_n = 1
- weekly_pattern_n = 2
-baseline_param_list = list(alpha = 3, beta = 0, gamma1 = 0.8, gamma2 = 0.6, gamma3 = 0.8, gamma4 = 0.4, phi = 4, shift = 29)
-outbreak_param_list = list(m=2)
-)
+Simulation of seasonal outbreaks for syndromes/diseases that follows seasonal trends.
+Seasonal outbreaks are more variable both in size and timing than regular seasonal patterns.
+The number of seasonal outbreaks occur in a year are defined by n_season_outbreak.
+The parameters week_season_start and week_season_end define the season window.
+The start of the seasonal outbreak is drawn from the season window weeks, with higher probability of outbreak occurs around the peak of the season (week_season_peak).
+The seasonal outbreak size (excess number of cases that occurs during the outbreak) is simulated using a poisson distribution as described in Noufaily et al. (2019).
 }

@@ -2,46 +2,26 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{simulate_spike_outbreak_data}
 \alias{simulate_spike_outbreak_data}
-\title{simulate spike outbreak data ----
-Simulate (daily) spike outbreak data}
+\title{Simulate spiked outbreaks ----
+Simulation of spiked outbreak as described in Noufaily et al. (2019). The method for simulating spiked outbreak is similar to
+seasonal outbreaks simulation but they are shorter in duration and are added only the last year of data (prediction data).
+Spiked outbreaks can start at any week during the prediction data}
 \usage{
 simulate_spike_outbreak_data(data, n_sp_outbreak = 1, m)
 }
 \arguments{
-\item{splfmt_rds_data}{Simulated or real data}
+\item{data}{A splfmt_rds data object}
 
-\item{start_date}{Starting date simulated outbreak.
-Date is in the format of 'yyyy-mm-dd'.}
+\item{n_sp_outbreak}{Number of spiked outbreaks to be simulated}
 
-\item{numoutbk}{Ending date of the simulation period.}
+\item{m}{Parameter to determine the size of the outbreak (m times the standard deviation of the baseline count at the starting day of the seasonal outbreak)}
 }
 \value{
-A splfmt_rts_data_v1, data.table containing
-
-\describe{
-  \item{granularity_time}{Pseudo ID for death events.}
-  \item{granularity_geo}{Pseudo ID for death events.}
-  \item{wday}{Pseudo ID for death events.}
-}
+A splfmt_rts_data_v1, data.table
 }
 \description{
-simulate spike outbreak data ----
-Simulate (daily) spike outbreak data
-}
-\details{
-
-}
-\examples{
-start_date <- '2018-01-01'
-end_date <- '2019-12-31'
-
-baseline  <- simulate_baseline_data(
- start_date = as.Date("2012-01-01")
- end_date = as.Date("2019-12-31")
- seasonal_pattern_n = 1
- weekly_pattern_n = 2
-baseline_param_list = list(alpha = 3, beta = 0, gamma1 = 0.8, gamma2 = 0.6, gamma3 = 0.8, gamma4 = 0.4, phi = 4, shift = 29)
-outbreak_param_list = list(m=2)
-
-# )
+Simulate spiked outbreaks ----
+Simulation of spiked outbreak as described in Noufaily et al. (2019). The method for simulating spiked outbreak is similar to
+seasonal outbreaks simulation but they are shorter in duration and are added only the last year of data (prediction data).
+Spiked outbreaks can start at any week during the prediction data
 }

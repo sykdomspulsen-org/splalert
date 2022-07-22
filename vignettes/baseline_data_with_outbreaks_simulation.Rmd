@@ -1,0 +1,156 @@
+---
+title: "Baseline data simulation with seasonal and spike outbreaks"
+author: "Beatriz Valcarcel"
+date: "2022-04-20"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Baseline data simulation with seasonal and spike outbreaks}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r}
+library(ggplot2)
+library(data.table)
+library(magrittr)
+library(surveillance)
+
+```
+
+## Simulation of baseline data 
+
+```{r}
+
+
+baseline <- splalert::simulate_baseline_data( 
+                                    start_date = as.Date("2012-01-01"),
+                                    end_date = as.Date("2019-12-31"),
+                                    seasonal_pattern_n = 1,
+                                    weekly_pattern_n = 2,
+                                    alpha = 3, 
+                                    beta = 0, 
+                                    gamma_1 = 0.8, 
+                                    gamma_2 = 0.6, 
+                                    gamma_3 = 0.8, 
+                                    gamma_4 = 0.4, 
+                                    phi = 2, 
+                                    shift_1 = 6
+                                  )
+baseline[,s:=15]
+
+q <- ggplot(baseline, aes(x = date, y = n))
+q <- q + geom_line(lwd = 1)
+q <- q + facet_wrap(~s, scales = "free")
+q <- q + splstyle::scale_fill_fhi(palette = "contrast")
+q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
+q
+
+
+# q <- ggplot(baseline, aes(wday, n, group=wday))
+# q <- q + facet_wrap(~s, scales = "free")
+# q <- q + geom_boxplot()
+# q
+# 
+# q <- ggplot(baseline, aes(wday, n, group=calmonth))
+# q <- q + facet_wrap(~s, scales = "free")
+# q <- q + geom_boxplot()
+# q
+
+```
+
+<!-- ## Add seasonal outbreaks  -->
+
+<!-- ```{r} -->
+
+<!-- baseline_with_seasonal <- splalert::simulate_seasonal_outbreak_data (baseline, -->
+<!--                                                            week_season_start = 40, -->
+<!--                                                            week_season_peak = 4, -->
+<!--                                                            week_season_end = 20, -->
+<!--                                                            n_season_outbreak = 1, -->
+<!--                                                            m = 20) -->
+
+
+
+<!--     q <- ggplot(baseline_with_seasonal, aes(x = date, y = n)) -->
+<!--     q <- q + geom_line(colour = "red") -->
+<!--     q <- q + geom_line(data=baseline_with_seasonal, aes(x = date, y = n - seasonal_outbreak_n_rw )) -->
+<!--     q <- q + facet_wrap(~s, scales = "free") -->
+<!--     q <- q + splstyle::scale_fill_fhi(palette = "contrast") -->
+<!--     q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom") -->
+<!--     q -->
+
+
+
+<!-- ``` -->
+
+
+<!-- ## Add spikeoutbreak  -->
+
+<!-- ```{r} -->
+<!-- baseline_with_seasonal_spike  <- splalert::simulate_spike_outbreak_data(baseline_with_seasonal, -->
+<!--                                                               n_sp_outbreak=1, -->
+<!--                                                               m = 20) -->
+
+
+<!--   q <- ggplot(baseline_with_seasonal_spike, aes(x = date, y = n)) -->
+<!--   q <- q + geom_line(colour = "green") -->
+<!--   q <- q + geom_line(data=baseline_with_seasonal, aes(x = date, y = n),colour = "red") -->
+<!--   q <- q + geom_line(data=baseline, aes(x = date, y = n)) -->
+<!--   q <- q + splstyle::scale_fill_fhi(palette = "contrast") -->
+<!--   q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom") -->
+<!--   q -->
+
+
+<!-- ``` -->
+
+<!-- ## Add holiday effect  -->
+
+<!-- ```{r} -->
+
+
+<!-- baseline_with_seasonal_spike_holiday  <- splalert:: add_holiday_effect( baseline_with_seasonal_spike, -->
+<!--                                                               holiday_data= fhidata::norway_dates_holidays, -->
+<!--                                                               holiday_effect=0.5) -->
+
+
+<!-- q <- ggplot(baseline_with_seasonal_spike_holiday , aes(x = date, y = n)) -->
+<!-- q <- q + geom_line() -->
+<!-- q <- q + splstyle::scale_fill_fhi(palette = "contrast") -->
+<!-- q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom") -->
+<!-- q -->
+
+
+<!-- ``` -->
+
+
+
+<!-- ## Test Quasipoisson Ccore skuhr -->
+
+<!-- ```{r} -->
+
+
+<!-- quasipoisson_alerts  <- quasipoisson_core_skuhr_create_alerts( baseline_with_seasonal_spike_holiday, -->
+<!--                                                                                 reweights = 1, -->
+<!--                                                                                 remove.highcounts = 0, -->
+<!--                                                                                 is_day = T) -->
+
+
+
+<!-- q <- ggplot(quasipoisson_alerts, aes(x = date, y = n_tot),color = as.factor(group))) -->
+<!-- q <- q + geom_line() -->
+<!-- q <- q + geom_point(quasipoisson_alerts,aes(x = date, y = n_tot)) -->
+
+<!-- q <- q + splstyle::scale_fill_fhi(palette = "contrast") -->
+<!-- q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom") -->
+<!-- q -->
+
+
+<!-- ``` -->
+

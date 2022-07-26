@@ -65,30 +65,30 @@ q
 
 ```
 
-<!-- ## Add seasonal outbreaks  -->
+## Add seasonal outbreaks
 
-<!-- ```{r} -->
+```{r}
 
-<!-- baseline_with_seasonal <- splalert::simulate_seasonal_outbreak_data (baseline, -->
-<!--                                                            week_season_start = 40, -->
-<!--                                                            week_season_peak = 4, -->
-<!--                                                            week_season_end = 20, -->
-<!--                                                            n_season_outbreak = 1, -->
-<!--                                                            m = 20) -->
-
-
-
-<!--     q <- ggplot(baseline_with_seasonal, aes(x = date, y = n)) -->
-<!--     q <- q + geom_line(colour = "red") -->
-<!--     q <- q + geom_line(data=baseline_with_seasonal, aes(x = date, y = n - seasonal_outbreak_n_rw )) -->
-<!--     q <- q + facet_wrap(~s, scales = "free") -->
-<!--     q <- q + splstyle::scale_fill_fhi(palette = "contrast") -->
-<!--     q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom") -->
-<!--     q -->
+baseline_with_seasonal <- splalert::simulate_seasonal_outbreak_data (baseline,
+                                                           week_season_start = 40,
+                                                           week_season_peak = 4,
+                                                           week_season_end = 20,
+                                                           n_season_outbreak = 1,
+                                                           m = 50)
 
 
 
-<!-- ``` -->
+    q <- ggplot(baseline_with_seasonal, aes(x = date, y = n))
+    q <- q + geom_line(colour = "red")
+    q <- q + geom_line(data=baseline_with_seasonal, aes(x = date, y = n - seasonal_outbreak_n_rw ))
+    q <- q + facet_wrap(~s, scales = "free")
+    q <- q + splstyle::scale_fill_fhi(palette = "contrast")
+    q <- q + splstyle::theme_fhi_lines_horizontal(legend_position = "bottom")
+    q
+
+
+
+```
 
 
 <!-- ## Add spikeoutbreak  -->

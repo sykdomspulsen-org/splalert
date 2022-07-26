@@ -50,7 +50,7 @@ baseline_1  <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.5, 
                                     gamma_4 = 0.4, 
                                     phi = 2, 
-                                    shift = 29 
+                                    shift_1 = 29 
                                   )
 
 
@@ -69,7 +69,7 @@ baseline_2  <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.5, 
                                     gamma_4 = 0.4, 
                                     phi = 1, 
-                                    shift = -167 
+                                    shift_1 = -167 
                                   )
 
 
@@ -88,7 +88,7 @@ baseline_3  <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.3, 
                                     gamma_4 = 0.25, 
                                     phi = 1, 
-                                    shift = 1
+                                    shift_1 = 1
                                   )
 
 baseline_3[,s:=3]
@@ -106,7 +106,7 @@ baseline_4 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.3,
                                     gamma_4 = 0.25, 
                                     phi = 1, 
-                                    shift = 1
+                                    shift_1 = 1
                                   )
 
 baseline_4[,s:=4]
@@ -123,7 +123,7 @@ baseline_5 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.3, 
                                     gamma_4 = 0.5, 
                                     phi = 1.5, 
-                                    shift = -50 
+                                    shift_1 = -50 
                                   )
 
 baseline_5[,s:=5]
@@ -141,7 +141,7 @@ baseline_6 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.05, 
                                     gamma_4 = 0.05, 
                                     phi = 1, 
-                                    shift = -50 
+                                    shift_1 = -50 
                                   )
 
 baseline_6[,s:=6]
@@ -159,7 +159,7 @@ baseline_7 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.6, 
                                     gamma_4 = 0.9, 
                                     phi = 1.5, 
-                                    shift = 0 
+                                    shift_1 = 0 
                                   )
 
 
@@ -177,7 +177,7 @@ baseline_8 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.2, 
                                     gamma_4 = 0.3, 
                                     phi = 1, 
-                                    shift = -150 )
+                                    shift_1 = -150 )
 
 
 
@@ -195,7 +195,7 @@ baseline_9 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.05, 
                                     gamma_4 = 0.15, 
                                     phi = 1, 
-                                    shift = -200 
+                                    shift_1 = -200 
                                   )
 
 baseline_9[,s:=9]
@@ -213,7 +213,7 @@ baseline_10 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.05, 
                                     gamma_4 = 0.1, 
                                     phi = 1, 
-                                    shift = 0 
+                                    shift_1 = 0 
                                   )
 
 
@@ -232,7 +232,7 @@ baseline_11 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.05, 
                                     gamma_4 = 0.15, 
                                     phi = 1, 
-                                    shift = 0 
+                                    shift_1 = 0 
                                   )
 
 baseline_11[,s:=11]
@@ -250,7 +250,7 @@ baseline_12 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.2, 
                                     gamma_4 = 0.4, 
                                     phi = 4, 
-                                    shift = 57
+                                    shift_1 = 57
                                   )
 
 
@@ -270,7 +270,7 @@ baseline_13 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.8, 
                                     gamma_4 = 0.4, 
                                     phi = 4, 
-                                    shift = 57 
+                                    shift_1 = 57 
                                   )
 
 baseline_13[,s:=13]
@@ -289,7 +289,7 @@ baseline_14 <- splalert::simulate_baseline_data(
                                     gamma_3 = 1.8, 
                                     gamma_4 = 0.1, 
                                     phi = 1, 
-                                    shift = -85 
+                                    shift_1 = -85 
                                   )
 
 baseline_14[,s:=14]
@@ -307,7 +307,7 @@ baseline_15 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.8, 
                                     gamma_4 = 0.4, 
                                     phi = 4, 
-                                    shift = 29)
+                                    shift_1 = 29)
 
 baseline_15[,s:=15]
 
@@ -325,7 +325,7 @@ baseline_16 <- splalert::simulate_baseline_data(
                                     gamma_3 = 0.8, 
                                     gamma_4 = 0.4, 
                                     phi = 4, 
-                                    shift = 1
+                                    shift_1 = 1
                                   )
                                    
 

@@ -37,7 +37,7 @@ The data in csv and xlsx formats can be found on our [Github repository](https:/
 We have prepared the data into [spltidy format](https://docs.sykdomspulsen.no/spltidy/articles/splfmt_rts_data_v1.html), from which we can see the summary of each column, such as data type and amount of missing data.
 
 ```{r}
-d_msis <- spltidy::covid19_msis_cases_by_time_location
+d_msis <- spltidy::norway_covid19_cases_by_time_location
 # check the column names
 colnames(d_msis)  
 ```

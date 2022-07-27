@@ -189,6 +189,8 @@ simulate_seasonal_outbreak_data <-  function(data,
                                              n_season_outbreak = 1,
                                              m=50){
 
+  years_out <- NULL
+  print(years_out)
 
   d <- copy(data)
   N <- nrow(d)
@@ -212,14 +214,16 @@ simulate_seasonal_outbreak_data <-  function(data,
 
   # random sampling of numbers of years with seasonal outbreak
   n_out <- sample(1:length(years),1)
-  years <- sort(sample(years,n_out,replace=F))
+  years_out <- sort(sample(years,n_out,replace=F))
+
+  print(years_out)
 
   d[, seasonal_outbreak_n:=0]
   d[, seasonal_outbreak_n_rw:=0]
 
-  for (y in years) {
+  for (y in years_out) {
 
-    set.seed(y)
+    # set.seed(y)
 
     wtime <- c(paste(y,c(week_season_start:52),sep="-"), paste(y+1,stringr::str_pad(c(1:week_season_end),2,pad="0"),sep="-"))
     time <- d[isoyearweek %in% wtime]$time
@@ -257,13 +261,14 @@ simulate_seasonal_outbreak_data <-  function(data,
         d[time %in% duration, seasonal_outbreak_n_rw := outbreak_n * weight]
         d[time %in% duration, seasonal_outbreak:=1]
 
+
       }
 
   }
 
+  d[is.na(seasonal_outbreak), seasonal_outbreak:=0]
 
   d[, n := n + seasonal_outbreak_n_rw]
-
   return(d)
 }
 
@@ -341,10 +346,18 @@ simulate_spike_outbreak_data <-  function(data,
 
         d[time %in% duration, sp_outbreak_n := outbreak_n]
         d[time %in% duration, sp_outbreak_n_rw := outbreak_n * weight]
-        d[time %in% duration, sp_outbreak:=1]
+        d[time %in% duration, sp_outbreak:=2]
+
 
     }
-        d[, n := n + sp_outbreak_n]
+
+    d[is.na(sp_outbreak), sp_outbreak:=0]
+    d[is.na(sp_outbreak_n), sp_outbreak_n:=0]
+    d[is.na(sp_outbreak_n_rw), sp_outbreak_n_rw:=0]
+
+
+
+    d[, n := n + sp_outbreak_n]
 
 
     return(d)

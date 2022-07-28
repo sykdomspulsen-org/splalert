@@ -1,24 +1,24 @@
 
-gen_splfmt_rts_baseline_data <- function(start_date,
-                                         end_date){
-
-  start_date <- as.Date(start_date)
-  end_date <- as.Date(end_date)
-
-      d <- spltidy::splfmt_rts_data_v1(data.table(
-        location_code = "norge",
-        date = seq.Date(start_date,end_date,by="day"),
-        age = "total",
-        sex = "total",
-        border = 2020,
-        granularity_time="day"
-      ))
-      d[, time:=1:.N]
-
-      d[, wday:=lubridate::wday(date)]
-
-  return(d)
-}
+# gen_splfmt_rts_baseline_data <- function(start_date,
+#                                          end_date){
+#
+#   start_date <- as.Date(start_date)
+#   end_date <- as.Date(end_date)
+#
+#       d <- spltidy::splfmt_rts_data_v1(data.table(
+#         location_code = "norge",
+#         date = seq.Date(start_date,end_date,by="day"),
+#         age = "total",
+#         sex = "total",
+#         border = 2020,
+#         granularity_time="day"
+#       ))
+#       d[, time:=1:.N]
+#
+#       d[, wday:=lubridate::wday(date)]
+#
+#   return(d)
+# }
 
 periodic_pattern <- function(n_p = 2,
                              g1 = 0.8,
@@ -59,11 +59,12 @@ periodic_pattern <- function(n_p = 2,
 #'
 #' @param alpha The parameter is used to specify the baseline frequencies of reports
 #' @param beta The parameter is used to specify to specify linear trend
-#' @param gamma_1 @param gamma_2 The parameter is used to specify the seasonal pattern
-#' @param gamma_3 @param gamma_4 The parameter is used to specify day-of-the week pattern
+#' @param gamma_1 The parameter is used to specify the seasonal pattern
+#' @param gamma_2 The parameter is used to specify the seasonal pattern
+#' @param gamma_3 The parameter is used to specify day-of-the week pattern
+#' @param gamma_4 The parameter is used to specify day-of-the week pattern
 #' @param phi Dispersion parameter. If phi =0, a Poisson model is used to simulate baseline data.
 #' @param shift_1 Horizontal shift parameter to help control over week/month peaks.
-#' @details
 #'
 #' @return
 #' A splfmt_rts_data_v1, data.table containing a time series of counts
@@ -105,7 +106,22 @@ simulate_baseline_data <-  function(start_date,
 
 
 
-  d <- splalert::gen_splfmt_rts_baseline_data(start_date, end_date)
+  # d <- splalert::gen_splfmt_rts_baseline_data(start_date, end_date)
+
+  start_date <- as.Date(start_date)
+  end_date <- as.Date(end_date)
+
+  d <- spltidy::splfmt_rts_data_v1(data.table(
+        location_code = "norge",
+        date = seq.Date(start_date,end_date,by="day"),
+        age = "total",
+        sex = "total",
+        border = 2020,
+        granularity_time="day"
+  ))
+
+  d[, time:=1:.N]
+  d[, wday:=lubridate::wday(date)]
   t <- 1:nrow(d)
   d[, phi:= phi]
 
@@ -158,14 +174,14 @@ simulate_baseline_data <-  function(start_date,
 
 
 #' Simulate seasonal outbreaks ----
+#' @description
 #' Simulation of seasonal outbreaks for syndromes/diseases that follows seasonal trends.
-#' Seasonal outbreaks are more variable both in size and timing than regular seasonal patterns.
+#' Seasonal outbreaks are more variable both in size and timing than  seasonal patterns.
 #' The number of seasonal outbreaks occur in a year are defined by n_season_outbreak.
 #' The parameters week_season_start and week_season_end define the season window.
 #' The start of the seasonal outbreak is drawn from the season window weeks, with higher probability of outbreak occurs around the peak of the season (week_season_peak).
 #' The seasonal outbreak size (excess number of cases that occurs during the outbreak) is simulated using a poisson distribution as described in Noufaily et al. (2019).
 #'
-#' @description
 #' @param data
 #' A splfmt_rds data object
 #' @param week_season_start Starting season week number
@@ -174,12 +190,10 @@ simulate_baseline_data <-  function(start_date,
 #' @param n_season_outbreak Number of seasonal outbreaks to be simulated
 #' @param m Parameter to determine the size of the outbreak (m times the standard deviation of the baseline count at the starting day of the seasonal outbreak)
 
-#' @details
 #' @return
 #' A splfmt_rts_data_v1, data.table
 #'
 #' @export
-#' @examples
 
 
 simulate_seasonal_outbreak_data <-  function(data,
@@ -275,22 +289,21 @@ simulate_seasonal_outbreak_data <-  function(data,
 
 
 #' Simulate spiked outbreaks ----
+#' @description
+
 #' Simulation of spiked outbreak as described in Noufaily et al. (2019). The method for simulating spiked outbreak is similar to
 #' seasonal outbreaks simulation but they are shorter in duration and are added only the last year of data (prediction data).
 #' Spiked outbreaks can start at any week during the prediction data
 #'
-#' @description
 #' @param data
 #' A splfmt_rds data object
 #' @param n_sp_outbreak Number of spiked outbreaks to be simulated
 #' @param m Parameter to determine the size of the outbreak (m times the standard deviation of the baseline count at the starting day of the seasonal outbreak)
 #'
-#' @details
 #' @return
 #' A splfmt_rts_data_v1, data.table
 #'
 #' @export
-#' @examples
 
 
 simulate_spike_outbreak_data <-  function(data,
@@ -367,21 +380,17 @@ simulate_spike_outbreak_data <-  function(data,
 
 
 #' Holiday effect ----
-#' The effect of public holiday on a time series of daily counts
-#'
 #' @description
+#' The effect of public holiday on a time series of daily counts
 #' @param data
 #' A splfmt_rds data object
 #' @param holiday_data dates
 #' @param holiday_effect Ending date of the simulation period.
-#' @details
 #'
 #' @return
 #' A splfmt_rts_data_v1, data.table containing
 #'
 #' @export
-#' @examples
-#' holiday_data <- fhidata::norway_dates_holidays
 
 
 add_holiday_effect <-  function(data,

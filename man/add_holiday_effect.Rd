@@ -2,8 +2,7 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{add_holiday_effect}
 \alias{add_holiday_effect}
-\title{Holiday effect ----
-The effect of public holiday on a time series of daily counts}
+\title{Holiday effect ----}
 \usage{
 add_holiday_effect(data, holiday_data, holiday_effect = 2)
 }
@@ -18,12 +17,5 @@ add_holiday_effect(data, holiday_data, holiday_effect = 2)
 A splfmt_rts_data_v1, data.table containing
 }
 \description{
-Holiday effect ----
 The effect of public holiday on a time series of daily counts
-}
-\details{
-
-}
-\examples{
-holiday_data <- fhidata::norway_dates_holidays
 }

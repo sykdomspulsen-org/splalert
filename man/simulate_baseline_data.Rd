@@ -35,9 +35,13 @@ Date is in the format of 'yyyy-mm-dd'.}
 
 \item{beta}{The parameter is used to specify to specify linear trend}
 
-\item{gamma_1}{@param gamma_2 The parameter is used to specify the seasonal pattern}
+\item{gamma_1}{The parameter is used to specify the seasonal pattern}
 
-\item{gamma_3}{@param gamma_4 The parameter is used to specify day-of-the week pattern}
+\item{gamma_2}{The parameter is used to specify the seasonal pattern}
+
+\item{gamma_3}{The parameter is used to specify day-of-the week pattern}
+
+\item{gamma_4}{The parameter is used to specify day-of-the week pattern}
 
 \item{phi}{Dispersion parameter. If phi =0, a Poisson model is used to simulate baseline data.}
 
@@ -55,9 +59,6 @@ A splfmt_rts_data_v1, data.table containing a time series of counts
 This function simulates a time series of daily counts in the absence of outbreaks. Data is simulated using a poisson/negative binomial model as described in
 Noufaily et al. (2019).
 Properties of time series such as frequency of baseline observations, trend, seasonal and weekly pattern can be specified in the simulation.
-}
-\details{
-
 }
 \examples{
 baseline  <- simulate_baseline_data(

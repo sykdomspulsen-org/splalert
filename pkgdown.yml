@@ -1,0 +1,15 @@
+pandoc: '2.13'
+pkgdown: 2.0.2
+pkgdown_sha: ~
+articles:
+  baseline_data_simulation: baseline_data_simulation.html
+  baseline_data_with_outbreaks_simulation: baseline_data_with_outbreaks_simulation.html
+  short_term_trend: short_term_trend.html
+  short_term_trend_msis: short_term_trend_msis.html
+  short_term_trend_msis_map: short_term_trend_msis_map.html
+  splalert: splalert.html
+last_built: 2022-07-28T08:07Z
+urls:
+  reference: https://docs.sykdomspulsen.no/splalert/reference
+  article: https://docs.sykdomspulsen.no/splalert/articles
+

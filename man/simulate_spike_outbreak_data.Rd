@@ -2,10 +2,7 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{simulate_spike_outbreak_data}
 \alias{simulate_spike_outbreak_data}
-\title{Simulate spiked outbreaks ----
-Simulation of spiked outbreak as described in Noufaily et al. (2019). The method for simulating spiked outbreak is similar to
-seasonal outbreaks simulation but they are shorter in duration and are added only the last year of data (prediction data).
-Spiked outbreaks can start at any week during the prediction data}
+\title{Simulate spiked outbreaks ----}
 \usage{
 simulate_spike_outbreak_data(data, n_sp_outbreak = 1, m)
 }
@@ -20,7 +17,6 @@ simulate_spike_outbreak_data(data, n_sp_outbreak = 1, m)
 A splfmt_rts_data_v1, data.table
 }
 \description{
-Simulate spiked outbreaks ----
 Simulation of spiked outbreak as described in Noufaily et al. (2019). The method for simulating spiked outbreak is similar to
 seasonal outbreaks simulation but they are shorter in duration and are added only the last year of data (prediction data).
 Spiked outbreaks can start at any week during the prediction data

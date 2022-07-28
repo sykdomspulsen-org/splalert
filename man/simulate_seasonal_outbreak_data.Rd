@@ -2,13 +2,7 @@
 % Please edit documentation in R/simulation_data_baseline.R
 \name{simulate_seasonal_outbreak_data}
 \alias{simulate_seasonal_outbreak_data}
-\title{Simulate seasonal outbreaks ----
-Simulation of seasonal outbreaks for syndromes/diseases that follows seasonal trends.
-Seasonal outbreaks are more variable both in size and timing than regular seasonal patterns.
-The number of seasonal outbreaks occur in a year are defined by n_season_outbreak.
-The parameters week_season_start and week_season_end define the season window.
-The start of the seasonal outbreak is drawn from the season window weeks, with higher probability of outbreak occurs around the peak of the season (week_season_peak).
-The seasonal outbreak size (excess number of cases that occurs during the outbreak) is simulated using a poisson distribution as described in Noufaily et al. (2019).}
+\title{Simulate seasonal outbreaks ----}
 \usage{
 simulate_seasonal_outbreak_data(
   data,
@@ -36,9 +30,8 @@ simulate_seasonal_outbreak_data(
 A splfmt_rts_data_v1, data.table
 }
 \description{
-Simulate seasonal outbreaks ----
 Simulation of seasonal outbreaks for syndromes/diseases that follows seasonal trends.
-Seasonal outbreaks are more variable both in size and timing than regular seasonal patterns.
+Seasonal outbreaks are more variable both in size and timing than  seasonal patterns.
 The number of seasonal outbreaks occur in a year are defined by n_season_outbreak.
 The parameters week_season_start and week_season_end define the season window.
 The start of the seasonal outbreak is drawn from the season window weeks, with higher probability of outbreak occurs around the peak of the season (week_season_peak).

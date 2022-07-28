@@ -96,7 +96,7 @@ baseline_with_seasonal <- splalert::simulate_seasonal_outbreak_data (baseline,
 ```{r}
 baseline_with_seasonal_spike  <- splalert::simulate_spike_outbreak_data(baseline_with_seasonal,
                                                                         n_sp_outbreak=1,
-                                                                        m = 20)
+                                                                        m = 15)
 
 
   q <- ggplot(baseline_with_seasonal_spike, aes(x = date, y = n))
